@@ -1,0 +1,606 @@
+<!-- 주방 오픈보고 입력 폼 프로토타입 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>주방 오픈보고</title>
+<style>
+  :root{
+    --bg:#F5F3EE; --surface:#FFFFFF; --ink:#1E2A24; --muted:#6B7770;
+    --line:#E5E1D8; --line2:#D7D2C6;
+    --green:#1D9E75; --green-bg:#E3F4EC; --green-tx:#0F6E56;
+    --amber:#C07D14; --amber-bg:#FBEFD8; --amber-tx:#7E4E08;
+    --none:#9AA29D; --none-bg:#EEEBE4; --none-tx:#5F6B64;
+    --head:#233B30; --accent:#1D9E75;
+    --r:10px; --r-lg:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding-bottom:96px}
+  button{font-family:inherit; cursor:pointer}
+  input,select,textarea{font-family:inherit; font-size:15px; color:var(--ink)}
+
+  /* header */
+  .top{background:var(--head); color:#EAF2EC; padding:16px 16px 18px; position:sticky; top:0; z-index:30}
+  .top h1{margin:0 0 12px; font-size:17px; font-weight:600; letter-spacing:-.01em}
+  .meta{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .meta .full{grid-column:1/3}
+  .fld label{display:block; font-size:11px; color:#A9C2B4; margin:0 0 3px}
+  .fld select,.fld input{width:100%; height:38px; border:1px solid #3A5648; background:#1B2F26;
+    color:#EAF2EC; border-radius:8px; padding:0 10px; appearance:none}
+  .fld select:focus,.fld input:focus,textarea:focus,input:focus{outline:2px solid var(--accent); outline-offset:1px}
+
+  /* progress */
+  .prog{position:sticky; top:0; z-index:20; background:var(--bg); padding:12px 16px 8px; border-bottom:1px solid var(--line)}
+  .prog .bar{height:7px; background:#E7E3DA; border-radius:99px; overflow:hidden}
+  .prog .fill{height:100%; width:0; background:var(--green); transition:width .25s}
+  .prog .row{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px}
+  .prog .row b{font-size:13px; font-weight:600}
+  .prog .row span{font-size:12px; color:var(--muted)}
+
+  .catlabel{font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.02em;
+    margin:18px 16px 7px; text-transform:none}
+  .list{padding:0 12px}
+
+  /* card */
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); margin-bottom:8px; overflow:hidden}
+  .card.s-action{border-color:#EAC994; border-width:1.5px}
+  .chead{display:flex; align-items:center; gap:10px; padding:13px 14px; min-height:52px}
+  .chead .name{font-weight:600; font-size:15px; flex:1; letter-spacing:-.01em}
+  .dot{width:9px; height:9px; border-radius:99px; background:var(--none); flex:none}
+  .s-good .dot{background:var(--green)} .s-action .dot{background:var(--amber)} .s-none .dot{background:var(--none)}
+  .s-pending .dot{background:var(--amber)}
+  .delitem{width:100%; height:38px; margin-top:12px; border:1px solid #E5C9C5; background:#FBF1EF;
+    color:#9A3B30; border-radius:9px; font-size:13px; font-weight:500}
+  .s-none .name{text-decoration:line-through; color:var(--muted)}
+  .badge{font-size:12px; padding:3px 9px; border-radius:99px; white-space:nowrap}
+  .b-good{background:var(--green-bg); color:var(--green-tx)}
+  .b-action{background:var(--amber-bg); color:var(--amber-tx)}
+  .b-need{background:var(--amber-bg); color:var(--amber-tx); font-weight:600}
+  .b-none{background:var(--none-bg); color:var(--none-tx)}
+  .quick{border:1px solid var(--green); background:var(--green-bg); color:var(--green-tx);
+    font-size:13px; font-weight:600; height:34px; padding:0 12px; border-radius:8px; white-space:nowrap}
+  .chev{color:var(--muted); font-size:18px; width:20px; text-align:center; flex:none}
+
+  /* body */
+  .cbody{padding:0 14px 14px; border-top:1px solid var(--line); display:none}
+  .card.open .cbody{display:block}
+  .seg{display:flex; gap:6px; margin:12px 0 4px}
+  .kebab{border:none; background:none; color:var(--muted); font-size:20px; line-height:1; padding:2px 4px; width:28px; flex:none; cursor:pointer}
+  .popover{padding:9px 12px; border-top:1px solid var(--line); background:var(--bg); display:flex; gap:8px; flex-wrap:wrap}
+  .popover button{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line2); background:var(--surface);
+    border-radius:8px; height:36px; padding:0 13px; font-size:13px; color:var(--ink); cursor:pointer}
+  .popover .pi{color:var(--muted); font-size:14px}
+  .nonehint{font-size:13px; color:var(--muted); padding:10px 2px 2px; margin:0}
+  .nonehint b{color:var(--ink)}
+  .done{width:100%; height:46px; margin-top:14px; border:none; border-radius:11px;
+    background:var(--head); color:#fff; font-size:15px; font-weight:600}
+  .seg button{flex:1; height:38px; border:1px solid var(--line2); background:var(--surface);
+    border-radius:9px; font-size:13px; font-weight:500; color:var(--muted)}
+  .seg button.on[data-status=good]{border-color:var(--green); background:var(--green-bg); color:var(--green-tx)}
+  .seg button.on[data-status=action]{border-color:var(--amber); background:var(--amber-bg); color:var(--amber-tx)}
+  .seg button.on[data-status=none]{border-color:var(--none); background:var(--none-bg); color:var(--none-tx)}
+
+  .sub{font-size:11px; color:var(--muted); font-weight:600; margin:14px 0 7px}
+  .cond{display:flex; gap:6px}
+  .cond button{flex:1; height:36px; border:1px solid var(--line2); background:var(--surface);
+    border-radius:8px; font-size:13px; color:var(--ink)}
+  .cond button.on{border-color:var(--ink); background:var(--ink); color:#fff; font-weight:600}
+
+  .attr{margin-bottom:11px}
+  .attr .alab{font-size:13px; margin-bottom:5px; color:var(--ink)}
+  .pills{display:flex; flex-wrap:wrap; gap:6px}
+  .pill{font-size:12.5px; padding:6px 11px; border-radius:99px; border:1px solid var(--line2);
+    background:var(--surface); color:var(--muted)}
+  .pill.on{border-color:var(--ink); background:#F0EEE8; color:var(--ink); font-weight:600}
+  .pill.on.flag{border-color:var(--amber); background:var(--amber-bg); color:var(--amber-tx)}
+  .achip{font-size:12.5px; padding:7px 12px; border-radius:99px; border:1px solid var(--line2);
+    background:var(--surface); color:var(--muted)}
+  .achip.on{border-color:var(--green); background:var(--green-bg); color:var(--green-tx); font-weight:600}
+  .direct{display:flex; align-items:center; gap:3px; border:1px solid var(--line2); background:var(--surface);
+    border-radius:8px; padding:0 9px; height:36px; min-width:74px}
+  .direct.on{border-color:var(--ink); background:#F0EEE8}
+  .direct input{width:42px; border:none; background:transparent; text-align:right; padding:0; height:34px; font-weight:600}
+  .direct input:focus{outline:none}
+  .direct span{font-size:13px; color:var(--muted)}
+  .ctas{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px}
+  .tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px}
+  .tag{display:inline-flex; align-items:center; gap:6px; font-size:13px; padding:6px 8px 6px 11px;
+    border-radius:8px; background:#EFF3F0; border:1px solid #DCE4DF; color:var(--ink)}
+  .tag button{border:none; background:none; color:var(--muted); font-size:13px; padding:0; line-height:1; cursor:pointer}
+  .noteinput{width:100%; height:40px; border:1px solid var(--line2); border-radius:9px; padding:0 11px; background:var(--surface)}
+  textarea{width:100%; min-height:54px; border:1px solid var(--line2); border-radius:9px;
+    padding:9px 10px; resize:vertical; background:var(--surface)}
+
+  /* dough lots */
+  .lot{border:1px solid var(--line2); border-radius:10px; padding:10px 11px; margin-bottom:8px}
+  .lot .lh{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
+  .lot .lh b{font-size:13px} .lot .lh b span{color:var(--muted); font-weight:400; margin-left:5px}
+  .lot .x{color:var(--muted); font-size:16px; background:none; border:none; padding:4px}
+  .lgrid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .lgrid .g3{grid-template-columns:1fr 1fr 1fr}
+  .lf label{display:block; font-size:11px; color:var(--muted); margin-bottom:3px}
+  .lf input{width:100%; height:36px; border:1px solid var(--line2); border-radius:8px; padding:0 9px; background:var(--surface)}
+  .dashed{width:100%; height:40px; border:1px dashed var(--line2); background:transparent; color:var(--muted);
+    border-radius:10px; font-size:13px; display:flex; align-items:center; justify-content:center; gap:6px}
+
+  .addcard{margin:8px 12px 4px}
+  .addbig{width:100%; height:50px; border:1px dashed var(--line2); background:transparent; color:var(--muted);
+    border-radius:var(--r-lg); font-size:14px; display:flex; align-items:center; justify-content:center; gap:7px}
+
+  /* sections */
+  .sect{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); margin:8px 12px; padding:14px}
+  .sect h3{margin:0 0 4px; font-size:14px; font-weight:600}
+  .sect p.hint{margin:0 0 11px; font-size:12px; color:var(--muted)}
+  .sect h3 .auto{font-size:11px; font-weight:600; color:var(--green-tx); background:var(--green-bg);
+    padding:2px 8px; border-radius:99px; margin-left:6px; vertical-align:middle}
+  .agedrow{padding:11px 0; border-bottom:1px solid var(--line)}
+  .agedrow:last-child{border-bottom:none}
+  .agedrow .ai{display:flex; flex-direction:column; gap:2px; margin-bottom:8px}
+  .agedrow .ai b{font-size:14px}
+  .agedrow .ai span{font-size:12px; color:var(--amber-tx)}
+  .planinput{width:100%; height:38px; border:1px solid var(--line2); border-radius:9px; padding:0 11px; background:var(--surface)}
+  .invrow{display:grid; grid-template-columns:1.3fr 0.9fr 0.8fr auto; gap:6px; margin-bottom:7px; align-items:center}
+  .invrow input{height:36px; border:1px solid var(--line2); border-radius:8px; padding:0 8px; background:var(--surface); width:100%}
+  .invrow .x{border:none; background:none; color:var(--muted); font-size:16px; padding:4px}
+  .addinv{font-size:13px; color:var(--green-tx); background:var(--green-bg); border:1px solid #Bfe3d3;
+    border-radius:8px; height:34px; padding:0 12px; margin-top:2px}
+
+  /* submit bar */
+  .bar{position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom)); display:flex; gap:10px; z-index:40}
+  .bar .wrapb{max-width:480px; margin:0 auto; width:100%; display:flex; gap:10px}
+  .submit{flex:1; height:48px; border:none; border-radius:12px; background:var(--head); color:#fff; font-size:15px; font-weight:600}
+  .submit:disabled{background:#B7BDB6}
+
+  /* modal */
+  .ov{position:fixed; inset:0; background:rgba(20,28,24,.5); z-index:50; display:none; align-items:flex-end; justify-content:center}
+  .ov.show{display:flex}
+  .sheet{background:var(--surface); width:100%; max-width:480px; max-height:86vh; border-radius:18px 18px 0 0;
+    display:flex; flex-direction:column; overflow:hidden}
+  .sheet .sh{padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
+  .sheet .sh b{font-size:15px; font-weight:600}
+  .sheet .sh button{border:none; background:none; font-size:18px; color:var(--muted)}
+  .sheet .sc{overflow:auto; padding:12px 16px}
+  .pickcat{font-size:11px; color:var(--muted); font-weight:600; margin:12px 0 6px}
+  .pickcat:first-child{margin-top:0}
+  .pickrow{display:flex; flex-wrap:wrap; gap:7px}
+  .pickrow button{border:1px solid var(--line2); background:var(--surface); border-radius:99px; padding:8px 13px; font-size:13.5px; color:var(--ink)}
+  pre{background:#1B2F26; color:#D8E8DF; padding:13px; border-radius:10px; font-size:12px; overflow:auto; margin:0; line-height:1.55;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; word-break:break-word}
+  .copy{width:100%; height:44px; border:1px solid var(--line2); background:var(--surface); border-radius:10px;
+    font-size:14px; font-weight:600; margin-top:12px; color:var(--ink)}
+  .toast{position:fixed; bottom:84px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:9px 16px; border-radius:99px; font-size:13px; z-index:60; opacity:0; transition:opacity .2s; pointer-events:none}
+  .toast.show{opacity:1}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <h1>주방 오픈보고</h1>
+    <div class="meta">
+      <div class="fld"><label>지점</label>
+        <select id="branch"></select></div>
+      <div class="fld"><label>보고일</label>
+        <input type="date" id="rdate"></div>
+      <div class="fld"><label>구분</label>
+        <select id="shift"><option>오픈</option><option>마감</option></select></div>
+      <div class="fld"><label>작성자</label>
+        <input id="author" placeholder="작성 셰프"></div>
+    </div>
+  </div>
+
+  <div class="prog">
+    <div class="row"><b id="pcount">0 / 0 확인</b><span id="pleft">남은 항목 0</span></div>
+    <div class="bar2"><div class="bar" style="height:7px;background:#E7E3DA;border-radius:99px;overflow:hidden">
+      <div class="fill" id="pfill"></div></div></div>
+  </div>
+
+  <div id="list" class="list"></div>
+
+  <div class="addcard">
+    <button class="addbig" id="addItem">＋ 재료 추가 <span style="font-size:12px;color:var(--muted)">(레몬컷·어니언칩 등 비정기)</span></button>
+  </div>
+
+  <div class="sect">
+    <h3>3일 이상 재고 <span class="auto">자동</span></h3>
+    <p class="hint">위에서 입력한 로트 중 <b>보고일 − 생산일 ≥ 3일</b>인 항목이 자동으로 올라옵니다. 각 항목에 처리 계획을 적어주세요.</p>
+    <div id="agedList"></div>
+  </div>
+
+  <div class="sect">
+    <h3>특이사항</h3>
+    <p class="hint">한 줄씩 Enter로 추가 — 발효 컨트롤, 리뷰빵, 3일차 항목 등</p>
+    <div id="genTags" class="tags"></div>
+    <input id="genInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter로 추가">
+  </div>
+</div>
+
+<div class="bar"><div class="wrapb">
+  <button class="submit" id="submit">보고 제출</button>
+</div></div>
+
+<!-- add-item sheet -->
+<div class="ov" id="ovAdd"><div class="sheet">
+  <div class="sh"><b>재료 추가</b><button id="closeAdd">✕</button></div>
+  <div class="sc" id="pickBody"></div>
+</div></div>
+
+<!-- submit sheet -->
+<div class="ov" id="ovSub"><div class="sheet">
+  <div class="sh"><b>제출 데이터 (Supabase 저장 형태)</b><button id="closeSub">✕</button></div>
+  <div class="sc">
+    <pre id="json"></pre>
+    <button class="copy" id="copyJson">JSON 복사</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- 마스터 데이터 (4개 지점 통합) ---------- */
+const SCALE={
+ '맛':['부족','양호','우수'],'밸런스':['부족','양호','우수'],'맛밸런스':['부족','양호','우수'],
+ '염도':['부족','양호','높음'],'짠맛':['부족','양호','높음'],
+ '수분감':['부족','양호','과다'],'식감':['무름','양호','퍽퍽','단단'],
+ '산미':['부족','양호','과함'],'단맛':['부족','양호','과함'],
+ '향':['약함','양호','강함'],'훈제향':['약함','양호','강함'],'풍미':['약함','양호','강함'],
+ '향신료향':['약함','양호','강함'],'고기향':['약함','양호','강함'],'오일향':['약함','양호','강함'],
+ '버진향':['약함','양호','강함'],'건재료향':['약함','양호','강함'],'스리라차향':['약함','양호','강함'],
+ '닭맛':['약함','양호','강함'],'바디감':['약함','양호','강함'],'마요네즈맛':['약함','양호','강함'],
+ '지방맛':['약함','양호','강함'],'스파이스':['약함','양호','강함'],
+ '감칠맛':['부족','양호','풍부'],'휩':['부족','양호'],'매운맛':['약함','양호','강함'],
+ '익힘':['언더','양호','오버'],'채소익힘':['언더','양호','오버'],'양파익힘':['언더','양호','오버'],
+ '갈변':['없음','미미','있음'],'비린맛':['없음','미미','있음'],'쓴맛':['없음','미미','있음'],
+ '물고임':['없음','미미','있음'],'마름':['없음','미미','있음'],
+ '크기':['작음','양호','큼'],'사이즈':['작음','양호','큼'],'두께감':['얇음','양호','두꺼움'],
+ '질감':['양호','분리'],'단단함':['무름','양호'],'오일':['부족','양호','과다'],'지방':['부족','양호','과다'],
+ '선도':['양호','저하'],'보관상태':['양호','물많음'],'컨디션':['양호','주의'],'치즈':['양호','주의']
+};
+const NONE_DEFAULT=new Set(['갈변','비린맛','쓴맛','물고임','마름']);
+function scaleKey(n){for(const p of ['루꼴라 ','토마토 ','사과컷 ','사과 ','카이피라 '])if(n.startsWith(p))n=n.slice(p.length);if(n==='상태')n='컨디션';return n;}
+function attrOpts(n){return SCALE[scaleKey(n)]||['양호','주의'];}
+function attrDefault(n){const k=scaleKey(n);if(NONE_DEFAULT.has(k))return '없음';const o=attrOpts(n);return o.includes('양호')?'양호':o[0];}
+
+const ITEMS={
+ '도우':{cat:'도우',special:true},
+ '잠봉슬라이스':{cat:'프로틴',attrs:['염도','수분감','식감','고기향','향신료향'],actions:['콩소메 양면','콩소메 한면','콩소메 펌프','소금 반핀치','버터 추가']},
+ '풀드포크':{cat:'프로틴',attrs:['염도','수분감','풍미','감칠맛','산미'],actions:['물 추가','깔라만시 후첨','연두 후첨']},
+ '게새포':{cat:'프로틴',attrs:['염도','식감','향','비린맛','수분감'],actions:['백후추 후첨','챠이브 후첨']},
+ '계란':{cat:'프로틴',attrs:['익힘','염도','맛','보관상태'],actions:[]},
+ '치킨(닭)':{cat:'프로틴',attrs:['맛','염도','풍미','식감','감칠맛','닭맛','두께감','수분감'],actions:['BD 곁들임']},
+ '연어':{cat:'프로틴',attrs:['염도','식감','크기','훈제향','향'],actions:['전량 소진']},
+ '스프':{cat:'스프/베이스',attrs:['맛','산미','염도','채소익힘','감칠맛','단맛'],actions:['연두 후첨','국물양 조절']},
+ '베토소':{cat:'스프/베이스',attrs:['염도','매운맛','산미','양파익힘','식감','단맛','맛밸런스'],actions:['트리밍','페페론치노 정량']},
+ '허니버터':{cat:'스프레드',attrs:['휩','향','밸런스','단맛','염도','산미','오일향','단단함','식감'],actions:['뚜껑 활용','금일 소진']},
+ '호두':{cat:'건재료',attrs:['맛','익힘','쓴맛'],actions:[]},
+ '어니언칩':{cat:'건재료',attrs:['식감','향'],actions:[]},
+ 'BD':{cat:'소스',attrs:['산미','단맛','짠맛','오일','버진향','맛밸런스'],actions:[]},
+ '샌프란':{cat:'소스',attrs:['바디감','마요네즈맛','질감','산미'],actions:[]},
+ '스리라차':{cat:'소스',attrs:['맛','밸런스','지방맛','매운맛','산미','스리라차향','마요네즈맛'],actions:['스리라차 3g 추가']},
+ '나르코티코':{cat:'소스',attrs:['건재료향','향','오일','밸런스','염도','산미','스파이스','단맛','지방'],actions:['직식 전환']},
+ '그라나파다노':{cat:'치즈',attrs:['염도','향','지방맛'],actions:[]},
+ '슬라이스치즈':{cat:'치즈',attrs:['염도','향','지방맛'],actions:[]},
+ '슈레드치즈':{cat:'치즈',attrs:['염도','지방맛'],actions:[]},
+ '피오르디':{cat:'치즈',attrs:['컨디션'],actions:[]},
+ 'RTM':{cat:'야채포션',attrs:['루꼴라 맛','루꼴라 향','선도','토마토 사이즈','토마토 맛','토마토 수분감','물고임','치즈'],actions:['줄기 체크','이물질 체크']},
+ '연어(야채)':{cat:'야채포션',attrs:['루꼴라 맛','사과컷 사이즈','사과 단맛','향','갈변'],actions:[]},
+ '크랩포션':{cat:'야채포션',attrs:['카이피라 컨디션','갈변'],actions:['선입선출 메모']},
+ '치킨포션':{cat:'야채포션',attrs:['카이피라 컨디션','갈변'],actions:[]},
+ '레몬컷':{cat:'기타',attrs:['산미','수분감','갈변','마름'],actions:[]}
+};
+const CAT_ORDER=['도우','프로틴','스프/베이스','스프레드','건재료','소스','치즈','야채포션','기타'];
+const FULL=['도우','잠봉슬라이스','풀드포크','게새포','계란','치킨(닭)','연어','스프','베토소','허니버터','호두','BD','샌프란','스리라차','나르코티코','RTM','연어(야채)','크랩포션','치킨포션'];
+const BRANCHES={
+ '북성수':FULL.slice(),
+ '여의도':FULL.slice(),
+ '신세계강남':['도우','잠봉슬라이스','베토소','허니버터','BD','RTM','그라나파다노','슬라이스치즈','피오르디','레몬컷'],
+ '청계천':['도우','잠봉슬라이스','풀드포크','게새포','계란','치킨(닭)','연어','스프','베토소','허니버터','호두','어니언칩','BD','샌프란','스리라차','나르코티코','그라나파다노','슬라이스치즈','슈레드치즈','RTM','연어(야채)','크랩포션','치킨포션']
+};
+
+/* ---------- 상태 ---------- */
+let roster=[]; let st={}; let inv=[]; let gen=[]; let added=new Set(); let menuOpen=null; let agedPlans={};
+function closeMenus(except){ if(menuOpen && menuOpen!==except && st[menuOpen]){ const n=menuOpen; menuOpen=null; st[n]._menu=false; refreshCard(n); } }
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function newLot(name){
+  const it=ITEMS[name];
+  if(it.special) return {prodDate:'',pan:'',ferm:'',cold:'',note:''};
+  const av={}; (it.attrs||[]).forEach(a=>av[a]=attrDefault(a));
+  return {prodDate:'',qty:'',cond:100,attrVals:av,notes:[]};
+}
+function initItem(name){ return {status:'pending',lots:[newLot(name)]}; }
+function loadBranch(b){
+  roster=(BRANCHES[b]||[]).slice(); st={}; added=new Set(); agedPlans={};
+  roster.forEach(n=>st[n]=initItem(n));
+  render(); renderAged();
+}
+
+/* ---------- 렌더 ---------- */
+function render(){
+  const L=$('#list'); L.innerHTML='';
+  let lastCat=null;
+  roster.forEach(name=>{
+    const cat=ITEMS[name].cat;
+    if(cat!==lastCat){const h=document.createElement('div');h.className='catlabel';h.textContent=cat;L.appendChild(h);lastCat=cat;}
+    L.appendChild(cardEl(name));
+  });
+  updateProgress();
+}
+function cardEl(name){
+  const d=document.createElement('div'); d.dataset.card=name; setCardClass(d,name); d.innerHTML=cardInner(name); return d;
+}
+function setCardClass(d,name){const s=st[name].status; d.className='card s-'+s+(s==='action'?'':'')+(st[name]._open?' open':'');}
+function refreshCard(name){const d=$('[data-card="'+CSS.escape(name)+'"]'); if(!d)return; setCardClass(d,name); d.innerHTML=cardInner(name); updateProgress();}
+
+function cardInner(name){
+  const it=ITEMS[name], s=st[name];
+  let head=`<div class="chead" data-act="toggle" data-item="${name}">
+      <span class="dot"></span><span class="name">${name}</span>`;
+  if(s.status==='pending') head+=`<span class="badge b-need">입력 필요</span>`;
+  else if(s.status==='good') head+=`<span class="badge b-good">${it.special?'기록됨':'확인 완료 · '+s.cond+'%'}</span>`;
+  else head+=`<span class="badge b-none">오늘 없음</span>`;
+  head+=`<button class="kebab" data-act="menu" data-item="${name}" aria-label="옵션">⋯</button>`;
+  head+=`<span class="chev">${s._open?'▾':'▸'}</span></div>`;
+  if(s._menu){
+    head+=`<div class="popover">`+
+      (s.status==='none'
+        ? `<button data-act="revert" data-item="${name}"><span class="pi">↩</span> 입력하기</button>`
+        : `<button data-act="setnone" data-item="${name}"><span class="pi">∅</span> 오늘 없음으로 표시</button>`)+
+      `</div>`;
+  }
+
+  if(!s._open) return head;
+
+  // body
+  let body=`<div class="cbody">`;
+
+  if(it.special){ body+=doughBody(name); }
+  else if(s.status==='none'){
+    body+=`<p class="nonehint">오늘 없음으로 표시됨 — 입력하려면 우측 <b>⋯</b> 메뉴</p>`;
+  }
+  else {
+    s.lots.forEach((lo,i)=>{ body+=lotBox(name,lo,i,s.lots.length); });
+    body+=`<button class="dashed" data-act="addlot" data-item="${name}">＋ 로트 추가 (다른 생산일)</button>`;
+    body+=`<button class="done" data-act="done" data-item="${name}">입력 완료</button>`;
+  }
+  if(added.has(name)) body+=`<button class="delitem" data-act="delitem" data-item="${name}">이 재료 삭제</button>`;
+  body+=`</div>`;
+  return head+body;
+}
+function lotBox(name,lo,i,n){
+  const it=ITEMS[name], presets=[100,95,90];
+  let h=`<div class="lot"><div class="lh"><b>로트 ${i+1}<span>${lo.prodDate||'생산일 미입력'}</span></b>`+
+    (n>1?`<button class="x" data-act="rmlot" data-item="${name}" data-i="${i}">✕</button>`:'')+`</div>`;
+  // 생산일 + 수량
+  h+=`<div class="lgrid">`+
+    lf(name,i,'prodDate','생산일','','date',lo.prodDate)+
+    lf(name,i,'qty','수량','예 12개','text',lo.qty)+`</div>`;
+  // 컨디션
+  h+=`<div class="sub">컨디션</div><div class="cond">`+
+    presets.map(c=>`<button data-act="cond" data-item="${name}" data-i="${i}" data-c="${c}" class="${lo.cond===c?'on':''}">${c}%</button>`).join('')+
+    `<div class="direct ${presets.includes(lo.cond)?'':'on'}"><input type="number" inputmode="numeric" min="0" max="100" data-act="condinput" data-item="${name}" data-i="${i}" value="${lo.cond}" aria-label="컨디션 직접 입력"><span>%</span></div>`+
+    `</div>`;
+  // 평가 항목
+  h+=`<div class="sub">평가 항목</div>`;
+  (it.attrs||[]).forEach(a=>{
+    const cur=lo.attrVals[a], def=attrDefault(a);
+    h+=`<div class="attr"><div class="alab">${a}</div><div class="pills">`+
+      attrOpts(a).map(o=>`<button class="pill ${o===cur?'on':''} ${o===cur&&o!==def?'flag':''}" data-act="attr" data-item="${name}" data-i="${i}" data-a="${a}" data-v="${o}">${o}</button>`).join('')+
+      `</div></div>`;
+  });
+  // 메모 · 조치
+  h+=`<div class="sub">메모 · 조치</div>`;
+  if((it.actions||[]).length){
+    h+=`<div class="ctas">`+
+      it.actions.map(a=>`<button class="achip ${lo.notes.includes(a)?'on':''}" data-act="cta" data-item="${name}" data-i="${i}" data-x="${a}">＋ ${a}</button>`).join('')+`</div>`;
+  }
+  if(lo.notes.length){
+    h+=`<div class="tags">`+
+      lo.notes.map((nt,j)=>`<span class="tag">${esc(nt)}<button data-act="rmnote" data-item="${name}" data-i="${i}" data-j="${j}" aria-label="삭제">✕</button></span>`).join('')+`</div>`;
+  }
+  h+=`<input class="noteinput" type="text" data-act="noteinput" data-item="${name}" data-i="${i}" placeholder="직접 입력 후 Enter로 추가">`;
+  h+=`</div>`;
+  return h;
+}
+function seg(name,status,label){const on=st[name].status===status?'on':'';return `<button class="${on}" data-act="status" data-item="${name}" data-status="${status}">${label}</button>`;}
+
+function doughBody(name){
+  const s=st[name];
+  let h=`<div class="sub">로트 ${s.lots.length}건</div>`;
+  s.lots.forEach((lo,i)=>{
+    h+=`<div class="lot"><div class="lh"><b>로트 ${i+1}<span>${lo.prodDate||'날짜 미입력'}</span></b>`+
+      (s.lots.length>1?`<button class="x" data-act="rmlot" data-item="${name}" data-i="${i}">✕</button>`:'')+`</div>`+
+      `<div class="lgrid g3" style="grid-template-columns:1fr 1fr 1fr">`+
+      lf(name,i,'prodDate','생산일','','date',lo.prodDate)+
+      lf(name,i,'pan','판수','예 5판','text',lo.pan)+
+      lf(name,i,'ferm','발효도%','93','text',lo.ferm)+`</div>`+
+      `<div class="lgrid" style="margin-top:8px">`+
+      lf(name,i,'cold','냉기%','10','text',lo.cold)+
+      lf(name,i,'note','메모','전판 꺼냄 등','text',lo.note)+`</div></div>`;
+  });
+  h+=`<button class="dashed" data-act="addlot" data-item="${name}">＋ 날짜 추가</button>`;
+  h+=`<button class="done" data-act="done" data-item="${name}">입력 완료</button>`;
+  return h;
+}
+function lf(name,i,field,label,ph,type,val){
+  return `<div class="lf"><label>${label}</label><input type="${type}" data-act="lot" data-item="${name}" data-i="${i}" data-f="${field}" placeholder="${ph}" value="${val||''}"></div>`;
+}
+
+/* ---------- 이벤트 (위임) ---------- */
+$('#list').addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]'); if(!t)return;
+  const act=t.dataset.act, name=t.dataset.item;
+  if(act==='toggle'){ st[name]._menu=false; closeMenus(name); st[name]._open=!st[name]._open; refreshCard(name); }
+  else if(act==='menu'){ const open=st[name]._menu; closeMenus(); st[name]._menu=!open; menuOpen=st[name]._menu?name:null; refreshCard(name); }
+  else if(act==='setnone'){ st[name].status='none'; st[name]._menu=false; st[name]._open=false; menuOpen=null; refreshCard(name); renderAged(); }
+  else if(act==='revert'){ st[name].status='pending'; st[name]._menu=false; st[name]._open=true; menuOpen=null; refreshCard(name); renderAged(); }
+  else if(act==='done'){ st[name].status='good'; st[name]._open=false; refreshCard(name); }
+  else if(act==='cond'){ st[name].lots[+t.dataset.i].cond=+t.dataset.c; refreshCard(name); }
+  else if(act==='attr'){ st[name].lots[+t.dataset.i].attrVals[t.dataset.a]=t.dataset.v; refreshCard(name); }
+  else if(act==='cta'){ const a=t.dataset.x,arr=st[name].lots[+t.dataset.i].notes,k=arr.indexOf(a); k<0?arr.push(a):arr.splice(k,1); refreshCard(name); }
+  else if(act==='rmnote'){ st[name].lots[+t.dataset.i].notes.splice(+t.dataset.j,1); refreshCard(name); }
+  else if(act==='delitem'){ roster=roster.filter(n=>n!==name); delete st[name]; added.delete(name); render(); renderAged(); }
+  else if(act==='addlot'){ st[name].lots.push(newLot(name)); refreshCard(name); }
+  else if(act==='rmlot'){ st[name].lots.splice(+t.dataset.i,1); refreshCard(name); renderAged(); }
+});
+$('#list').addEventListener('input',e=>{
+  const t=e.target.closest('[data-act]'); if(!t)return;
+  const name=t.dataset.item, i=+t.dataset.i;
+  if(t.dataset.act==='condinput'){
+    let v=parseInt(t.value,10); if(isNaN(v))return; if(v>100)v=100; if(v<0)v=0;
+    st[name].lots[i].cond=v;
+    const lotEl=t.closest('.lot');
+    lotEl.querySelectorAll('.cond button').forEach(b=>b.classList.remove('on'));
+    lotEl.querySelector('.direct').classList.toggle('on',![100,95,90].includes(v));
+  }
+  else if(t.dataset.act==='lot'){
+    st[name].lots[i][t.dataset.f]=t.value;
+    if(t.dataset.f==='prodDate') renderAged();
+  }
+});
+$('#list').addEventListener('keydown',e=>{
+  const t=e.target.closest('[data-act=noteinput]'); if(!t)return;
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const name=t.dataset.item, i=+t.dataset.i, v=t.value.trim();
+    if(v && !st[name].lots[i].notes.includes(v)) st[name].lots[i].notes.push(v);
+    t.value='';
+    refreshCard(name);
+    const card=document.querySelector('[data-card="'+CSS.escape(name)+'"]');
+    const lot=card&&card.querySelectorAll('.lot')[i];
+    const ni=lot&&lot.querySelector('.noteinput'); if(ni)ni.focus();
+  }
+});
+
+/* ---------- 진행률 ---------- */
+function updateProgress(){
+  const total=roster.length;
+  const done=roster.filter(n=>st[n].status!=='pending').length;
+  const left=total-done;
+  $('#pcount').textContent=`${done} / ${total} 확인`;
+  $('#pleft').textContent=`남은 항목 ${left}`;
+  $('#pfill').style.width=(total?done/total*100:0)+'%';
+  const sb=$('#submit');
+  sb.disabled=left>0;
+  sb.textContent=left>0?`입력 필요 ${left}개 남음`:'보고 제출';
+}
+
+/* ---------- 재료 추가 시트 ---------- */
+function openAdd(){
+  const body=$('#pickBody'); body.innerHTML='';
+  const avail=Object.keys(ITEMS).filter(n=>!roster.includes(n));
+  if(!avail.length){body.innerHTML='<p style="color:var(--muted);font-size:13px">추가할 재료가 없습니다.</p>';}
+  CAT_ORDER.forEach(cat=>{
+    const items=avail.filter(n=>ITEMS[n].cat===cat); if(!items.length)return;
+    const h=document.createElement('div'); h.className='pickcat'; h.textContent=cat; body.appendChild(h);
+    const row=document.createElement('div'); row.className='pickrow';
+    items.forEach(n=>{const b=document.createElement('button');b.textContent='＋ '+n;b.onclick=()=>addItem(n);row.appendChild(b);});
+    body.appendChild(row);
+  });
+  $('#ovAdd').classList.add('show');
+}
+function addItem(name){
+  // 카테고리 순서 유지하며 삽입
+  roster.push(name);
+  roster.sort((a,b)=>CAT_ORDER.indexOf(ITEMS[a].cat)-CAT_ORDER.indexOf(ITEMS[b].cat));
+  st[name]=initItem(name); st[name]._open=true; added.add(name);
+  $('#ovAdd').classList.remove('show'); render();
+  const el=$('[data-card="'+CSS.escape(name)+'"]'); if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---------- 3일 이상 재고 ---------- */
+function agedKey(name,i,prodDate){return name+'|'+i+'|'+prodDate;}
+function agedList(){
+  const rd=$('#rdate').value; const out=[];
+  if(!rd) return out;
+  const rdate=new Date(rd+'T00:00:00');
+  roster.forEach(name=>{
+    if(st[name].status==='none') return;
+    (st[name].lots||[]).forEach((lo,i)=>{
+      if(!lo.prodDate) return;
+      const d=new Date(lo.prodDate+'T00:00:00');
+      const days=Math.floor((rdate-d)/86400000);
+      if(days>=3) out.push({name,i,prodDate:lo.prodDate,days,qty:(ITEMS[name].special?lo.pan:lo.qty)||''});
+    });
+  });
+  out.sort((a,b)=>b.days-a.days);
+  return out;
+}
+function renderAged(){
+  const L=$('#agedList'); L.innerHTML='';
+  const list=agedList();
+  if(!list.length){ L.innerHTML='<p class="hint" style="margin:0">3일 이상 경과한 재고가 없습니다.</p>'; return; }
+  list.forEach(r=>{
+    const key=agedKey(r.name,r.i,r.prodDate);
+    const row=document.createElement('div'); row.className='agedrow';
+    row.innerHTML=`<div class="ai"><b>${esc(r.name)}</b><span>${r.prodDate} · ${r.days}일 경과${r.qty?' · '+esc(r.qty):''}</span></div>`;
+    const pi=document.createElement('input'); pi.className='planinput'; pi.placeholder='처리 계획 (예: 익일 소진 / 직식 전환)';
+    pi.value=agedPlans[key]||'';
+    pi.addEventListener('input',()=>{agedPlans[key]=pi.value;});
+    row.appendChild(pi); L.appendChild(row);
+  });
+}
+
+/* ---------- 특이사항 (태그 리스트) ---------- */
+function renderGen(){
+  const L=$('#genTags');
+  L.innerHTML=gen.map((n,i)=>`<span class="tag">${esc(n)}<button data-i="${i}" aria-label="삭제">✕</button></span>`).join('');
+  L.querySelectorAll('button').forEach(b=>b.onclick=()=>{gen.splice(+b.dataset.i,1);renderGen();});
+}
+
+/* ---------- 제출 ---------- */
+function buildPayload(){
+  const items=roster.map(name=>{
+    const it=ITEMS[name], s=st[name];
+    if(it.special){
+      return {item_name:name,category:it.cat,status:s.status,
+        lots:s.lots.map(l=>({prod_date:l.prodDate||null,quantity:l.pan||null,fermentation:l.ferm||null,cold:l.cold||null,note:l.note||null}))};
+    }
+    return {item_name:name,category:it.cat,status:s.status,
+      lots:s.status==='none'?[]:s.lots.map(l=>({
+        prod_date:l.prodDate||null,
+        quantity:l.qty||null,
+        condition_pct:l.cond,
+        issues:(it.attrs||[]).filter(a=>l.attrVals[a]!==attrDefault(a)).map(a=>({attr:a,value:l.attrVals[a]})),
+        notes:l.notes
+      }))};
+  });
+  const aged=agedList().map(r=>({item_name:r.name,prod_date:r.prodDate,days_old:r.days,quantity:r.qty||null,plan:agedPlans[agedKey(r.name,r.i,r.prodDate)]||null}));
+  return {
+    report:{branch:$('#branch').value,report_date:$('#rdate').value,shift:$('#shift').value,
+      author:$('#author').value||null,general_notes:gen},
+    items,
+    aged_inventory:aged
+  };
+}
+function submit(){
+  $('#json').textContent=JSON.stringify(buildPayload(),null,2);
+  $('#ovSub').classList.add('show');
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+
+/* ---------- 부팅 ---------- */
+(function init(){
+  const bs=$('#branch'); Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
+  $('#rdate').value=new Date().toISOString().slice(0,10);
+  bs.onchange=()=>loadBranch(bs.value);
+  $('#rdate').addEventListener('change',renderAged);
+  $('#addItem').onclick=openAdd;
+  $('#closeAdd').onclick=()=>$('#ovAdd').classList.remove('show');
+  $('#closeSub').onclick=()=>$('#ovSub').classList.remove('show');
+  $('#genInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v&&!gen.includes(v))gen.push(v);e.target.value='';renderGen();e.target.focus();}
+  });
+  $('#submit').onclick=submit;
+  $('#copyJson').onclick=()=>{navigator.clipboard?.writeText($('#json').textContent).then(()=>toast('복사됨'),()=>toast('복사 실패'));};
+  [$('#ovAdd'),$('#ovSub')].forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('show');}));
+  document.addEventListener('click',e=>{
+    if(!menuOpen)return;
+    if(e.target.closest('.kebab')||e.target.closest('.popover'))return;
+    const n=menuOpen; menuOpen=null; if(st[n]){st[n]._menu=false; refreshCard(n);}
+  });
+  loadBranch(bs.value);
+})();
+</script>
