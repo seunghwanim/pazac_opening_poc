@@ -175,9 +175,10 @@
   .toast.show{opacity:1}
 
   /* ── 홈 화면 ── */
-  #home{display:flex; flex-direction:column; min-height:100vh; background:var(--bg)}
-  #form{display:none}
-  .home-head{background:var(--head); padding:28px 20px 24px; color:#EAF2EC}
+  #home{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+  #form{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+  .hidden{display:none!important}
+  .home-head{background:var(--head);padding:28px 20px 24px;color:#EAF2EC}
   .home-head h1{font-size:20px; font-weight:700; letter-spacing:-.02em; margin:0 0 3px}
   .home-head p{font-size:13px; color:#8DB09A; margin:0}
   .home-body{padding:20px 16px; display:flex; flex-direction:column; gap:16px; flex:1}
@@ -207,7 +208,12 @@
   <div class="home-body">
     <div class="home-sect">
       <label>지점</label>
-      <select id="homeBranch"></select>
+      <select id="homeBranch">
+        <option>북성수</option>
+        <option>여의도</option>
+        <option>신세계강남</option>
+        <option>청계천</option>
+      </select>
     </div>
     <div class="home-sect">
       <label>보고일</label>
@@ -220,38 +226,38 @@
     <div class="home-sect">
       <label>보고 종류</label>
       <div class="type-grid" id="typeGrid">
-        <button class="type-card" data-type="주방 오픈">
+        <button type="button" class="type-card" data-type="주방 오픈">
           <span class="tc-icon">☀️</span>
           <div class="tc-title">주방 오픈</div>
           <div class="tc-desc">재료 선도·컨디션 확인</div>
         </button>
-        <button class="type-card" data-type="주방 마감">
+        <button type="button" class="type-card" data-type="주방 마감">
           <span class="tc-icon">🌙</span>
           <div class="tc-title">주방 마감</div>
           <div class="tc-desc">잔여 재고·보관 상태</div>
         </button>
-        <button class="type-card" data-type="홀 오픈">
+        <button type="button" class="type-card" data-type="홀 오픈">
           <span class="tc-icon">🪑</span>
           <div class="tc-title">홀 오픈</div>
           <div class="tc-desc">홀 세팅·비품 확인</div>
         </button>
-        <button class="type-card" data-type="홀 마감">
+        <button type="button" class="type-card" data-type="홀 마감">
           <span class="tc-icon">🔒</span>
           <div class="tc-title">홀 마감</div>
           <div class="tc-desc">정리·마감 체크</div>
         </button>
       </div>
     </div>
-    <button class="home-start" id="homeStart" disabled>보고 시작</button>
+    <button type="button" class="home-start" id="homeStart" disabled>보고 시작</button>
   </div>
 </div>
 
 <!-- ── 입력 폼 ── -->
-<div id="form">
+<div id="form" class="hidden">
 <div class="wrap">
   <div class="top">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
-      <button class="back-btn" id="backBtn">← 뒤로</button>
+      <button type="button" class="back-btn" id="backBtn">← 뒤로</button>
       <span id="typeLabel" style="font-size:13px; font-weight:600; color:#EAF2EC; margin-left:auto; background:rgba(255,255,255,.12); padding:3px 10px; border-radius:99px"></span>
     </div>
     <h1 id="formTitle">보고</h1>
@@ -290,11 +296,12 @@
     <input id="genInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter로 추가">
   </div>
 </div>
-</div>
 
-<div class="bar"><div class="wrapb">
+<div class="bar hidden"><div class="wrapb">
   <button class="submit" id="submit">보고 제출</button>
 </div></div>
+
+</div>
 
 <!-- add-item sheet -->
 <div class="ov" id="ovAdd"><div class="sheet">
@@ -658,49 +665,49 @@ function submit(){
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
 
 /* ---------- 부팅 ---------- */
-let currentType='';
-(function init(){
-  /* 홈 화면 */
-  const homeBranch=$('#homeBranch');
-  Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;homeBranch.appendChild(o);});
-  $('#homeDate').value=new Date().toISOString().slice(0,10);
+var currentType='';
+document.addEventListener('DOMContentLoaded', function(){
+  /* 홈: 날짜 기본값 */
+  document.getElementById('homeDate').value=new Date().toISOString().slice(0,10);
 
-  let selType='';
-  $('#typeGrid').querySelectorAll('.type-card').forEach(card=>{
-    card.onclick=()=>{
-      $('#typeGrid').querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+  /* 홈: 보고 종류 카드 */
+  var selType='';
+  document.getElementById('typeGrid').querySelectorAll('.type-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      document.getElementById('typeGrid').querySelectorAll('.type-card').forEach(function(c){c.classList.remove('sel');});
       card.classList.add('sel');
       selType=card.dataset.type;
-      $('#homeStart').disabled=false;
-    };
+      document.getElementById('homeStart').disabled=false;
+    });
   });
 
-  $('#homeStart').onclick=()=>{
+  /* 홈: 보고 시작 */
+  document.getElementById('homeStart').addEventListener('click', function(){
     if(!selType)return;
     currentType=selType;
-    const branch=homeBranch.value;
-    const date=$('#homeDate').value;
-    const author=$('#homeAuthor').value;
-    /* 폼으로 전환 */
-    $('#home').style.display='none';
-    $('#form').style.display='block';
-    /* 폼 헤더 반영 */
-    $('#formTitle').textContent=selType+' 보고';
-    $('#typeLabel').textContent=selType;
-    /* 폼 필드 채우기 */
-    const bs=$('#branch');
+    var branch=document.getElementById('homeBranch').value;
+    var date=document.getElementById('homeDate').value;
+    var author=document.getElementById('homeAuthor').value;
+    document.getElementById('home').classList.add('hidden');
+    document.getElementById('form').classList.remove('hidden');
+    document.querySelector('.bar').classList.remove('hidden');
+    document.getElementById('formTitle').textContent=selType+' 보고';
+    document.getElementById('typeLabel').textContent=selType;
+    var bs=$('#branch');
     bs.innerHTML='';
-    Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
+    Object.keys(BRANCHES).forEach(function(b){var o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
     bs.value=branch;
     $('#rdate').value=date;
     $('#author').value=author;
     loadBranch(branch);
-  };
+  });
 
-  $('#backBtn').onclick=()=>{
-    $('#form').style.display='none';
-    $('#home').style.display='flex';
-  };
+  /* 홈: 뒤로 */
+  document.getElementById('backBtn').addEventListener('click', function(){
+    document.getElementById('form').classList.add('hidden');
+    document.getElementById('home').classList.remove('hidden');
+    document.querySelector('.bar').classList.add('hidden');
+  });
 
   /* 폼 이벤트 */
   $('#branch').onchange=()=>loadBranch($('#branch').value);
@@ -719,5 +726,5 @@ let currentType='';
     if(e.target.closest('.kebab')||e.target.closest('.popover'))return;
     const n=menuOpen; menuOpen=null; if(st[n]){st[n]._menu=false; refreshCard(n);}
   });
-})();
+});
 </script>
