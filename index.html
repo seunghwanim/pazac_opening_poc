@@ -1,7 +1,7 @@
 <!-- 주방 오픈보고 입력 폼 프로토타입 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>주방 오픈보고</title>
+<title>주방 보고</title>
 <style>
   :root{
     --bg:#F5F3EE; --surface:#FFFFFF; --ink:#1E2A24; --muted:#6B7770;
@@ -173,19 +173,94 @@
   .toast{position:fixed; bottom:84px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     padding:9px 16px; border-radius:99px; font-size:13px; z-index:60; opacity:0; transition:opacity .2s; pointer-events:none}
   .toast.show{opacity:1}
+
+  /* ── 홈 화면 ── */
+  #home{display:flex; flex-direction:column; min-height:100vh; background:var(--bg)}
+  #form{display:none}
+  .home-head{background:var(--head); padding:28px 20px 24px; color:#EAF2EC}
+  .home-head h1{font-size:20px; font-weight:700; letter-spacing:-.02em; margin:0 0 3px}
+  .home-head p{font-size:13px; color:#8DB09A; margin:0}
+  .home-body{padding:20px 16px; display:flex; flex-direction:column; gap:16px; flex:1}
+  .home-sect label{display:block; font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.03em; text-transform:uppercase; margin-bottom:6px}
+  .home-sect select,.home-sect input{width:100%; height:44px; border:1px solid var(--line2); border-radius:10px; background:var(--surface); padding:0 13px; font-size:15px; appearance:none}
+  .home-sect select:focus,.home-sect input:focus{outline:2px solid var(--accent); outline-offset:1px}
+  .type-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .type-card{border:1.5px solid var(--line); border-radius:var(--r-lg); padding:16px 14px; background:var(--surface); cursor:pointer; text-align:left; transition:border-color .12s, background .12s}
+  .type-card:active{transform:scale(.98)}
+  .type-card.sel{border-color:var(--green); background:var(--green-bg)}
+  .type-card .tc-icon{font-size:22px; margin-bottom:9px; display:block}
+  .type-card .tc-title{font-size:14px; font-weight:600; color:var(--ink); margin-bottom:3px}
+  .type-card .tc-desc{font-size:11px; color:var(--muted); line-height:1.4}
+  .type-card.sel .tc-title{color:var(--green-tx)}
+  .type-card.sel .tc-desc{color:#1D9E75}
+  .home-start{width:100%; height:52px; border:none; border-radius:12px; background:var(--head); color:#fff; font-size:16px; font-weight:600; margin-top:4px}
+  .home-start:disabled{background:#B7BDB6}
+  .back-btn{border:none; background:none; color:#8DB09A; font-size:13px; padding:0; display:flex; align-items:center; gap:4px}
 </style>
 
+<!-- ── 홈 화면 ── -->
+<div id="home">
+  <div class="home-head">
+    <h1>주방 보고</h1>
+    <p>지점과 보고 종류를 선택하세요</p>
+  </div>
+  <div class="home-body">
+    <div class="home-sect">
+      <label>지점</label>
+      <select id="homeBranch"></select>
+    </div>
+    <div class="home-sect">
+      <label>보고일</label>
+      <input type="date" id="homeDate">
+    </div>
+    <div class="home-sect">
+      <label>작성자</label>
+      <input type="text" id="homeAuthor" placeholder="이름 입력">
+    </div>
+    <div class="home-sect">
+      <label>보고 종류</label>
+      <div class="type-grid" id="typeGrid">
+        <button class="type-card" data-type="주방 오픈">
+          <span class="tc-icon">☀️</span>
+          <div class="tc-title">주방 오픈</div>
+          <div class="tc-desc">재료 선도·컨디션 확인</div>
+        </button>
+        <button class="type-card" data-type="주방 마감">
+          <span class="tc-icon">🌙</span>
+          <div class="tc-title">주방 마감</div>
+          <div class="tc-desc">잔여 재고·보관 상태</div>
+        </button>
+        <button class="type-card" data-type="홀 오픈">
+          <span class="tc-icon">🪑</span>
+          <div class="tc-title">홀 오픈</div>
+          <div class="tc-desc">홀 세팅·비품 확인</div>
+        </button>
+        <button class="type-card" data-type="홀 마감">
+          <span class="tc-icon">🔒</span>
+          <div class="tc-title">홀 마감</div>
+          <div class="tc-desc">정리·마감 체크</div>
+        </button>
+      </div>
+    </div>
+    <button class="home-start" id="homeStart" disabled>보고 시작</button>
+  </div>
+</div>
+
+<!-- ── 입력 폼 ── -->
+<div id="form">
 <div class="wrap">
   <div class="top">
-    <h1>주방 오픈보고</h1>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <button class="back-btn" id="backBtn">← 뒤로</button>
+      <span id="typeLabel" style="font-size:13px; font-weight:600; color:#EAF2EC; margin-left:auto; background:rgba(255,255,255,.12); padding:3px 10px; border-radius:99px"></span>
+    </div>
+    <h1 id="formTitle">보고</h1>
     <div class="meta">
       <div class="fld"><label>지점</label>
         <select id="branch"></select></div>
       <div class="fld"><label>보고일</label>
         <input type="date" id="rdate"></div>
-      <div class="fld"><label>구분</label>
-        <select id="shift"><option>오픈</option><option>마감</option></select></div>
-      <div class="fld"><label>작성자</label>
+      <div class="fld full"><label>작성자</label>
         <input id="author" placeholder="작성 셰프"></div>
     </div>
   </div>
@@ -214,6 +289,7 @@
     <div id="genTags" class="tags"></div>
     <input id="genInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter로 추가">
   </div>
+</div>
 </div>
 
 <div class="bar"><div class="wrapb">
@@ -569,7 +645,7 @@ function buildPayload(){
   });
   const aged=agedList().map(r=>({item_name:r.name,prod_date:r.prodDate,days_old:r.days,quantity:r.qty||null,plan:agedPlans[agedKey(r.name,r.i,r.prodDate)]||null}));
   return {
-    report:{branch:$('#branch').value,report_date:$('#rdate').value,shift:$('#shift').value,
+    report:{branch:$('#branch').value,report_date:$('#rdate').value,shift:currentType,
       author:$('#author').value||null,general_notes:gen},
     items,
     aged_inventory:aged
@@ -582,10 +658,52 @@ function submit(){
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
 
 /* ---------- 부팅 ---------- */
+let currentType='';
 (function init(){
-  const bs=$('#branch'); Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
-  $('#rdate').value=new Date().toISOString().slice(0,10);
-  bs.onchange=()=>loadBranch(bs.value);
+  /* 홈 화면 */
+  const homeBranch=$('#homeBranch');
+  Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;homeBranch.appendChild(o);});
+  $('#homeDate').value=new Date().toISOString().slice(0,10);
+
+  let selType='';
+  $('#typeGrid').querySelectorAll('.type-card').forEach(card=>{
+    card.onclick=()=>{
+      $('#typeGrid').querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+      card.classList.add('sel');
+      selType=card.dataset.type;
+      $('#homeStart').disabled=false;
+    };
+  });
+
+  $('#homeStart').onclick=()=>{
+    if(!selType)return;
+    currentType=selType;
+    const branch=homeBranch.value;
+    const date=$('#homeDate').value;
+    const author=$('#homeAuthor').value;
+    /* 폼으로 전환 */
+    $('#home').style.display='none';
+    $('#form').style.display='block';
+    /* 폼 헤더 반영 */
+    $('#formTitle').textContent=selType+' 보고';
+    $('#typeLabel').textContent=selType;
+    /* 폼 필드 채우기 */
+    const bs=$('#branch');
+    bs.innerHTML='';
+    Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
+    bs.value=branch;
+    $('#rdate').value=date;
+    $('#author').value=author;
+    loadBranch(branch);
+  };
+
+  $('#backBtn').onclick=()=>{
+    $('#form').style.display='none';
+    $('#home').style.display='flex';
+  };
+
+  /* 폼 이벤트 */
+  $('#branch').onchange=()=>loadBranch($('#branch').value);
   $('#rdate').addEventListener('change',renderAged);
   $('#addItem').onclick=openAdd;
   $('#closeAdd').onclick=()=>$('#ovAdd').classList.remove('show');
@@ -601,6 +719,5 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');se
     if(e.target.closest('.kebab')||e.target.closest('.popover'))return;
     const n=menuOpen; menuOpen=null; if(st[n]){st[n]._menu=false; refreshCard(n);}
   });
-  loadBranch(bs.value);
 })();
 </script>
