@@ -1,7 +1,7 @@
-<!-- 주방 오픈보고 입력 폼 프로토타입 -->
+<!-- F&B 보고 폼 프로토타입 — 홈 라우터 + 주방오픈 / 홀오픈 / 홀마감 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>주방 보고</title>
+<title>보고</title>
 <style>
   :root{
     --bg:#F5F3EE; --surface:#FFFFFF; --ink:#1E2A24; --muted:#6B7770;
@@ -30,16 +30,16 @@
     color:#EAF2EC; border-radius:8px; padding:0 10px; appearance:none}
   .fld select:focus,.fld input:focus,textarea:focus,input:focus{outline:2px solid var(--accent); outline-offset:1px}
 
-  /* progress */
+  /* progress (주방오픈 전용) */
   .prog{position:sticky; top:0; z-index:20; background:var(--bg); padding:12px 16px 8px; border-bottom:1px solid var(--line)}
-  .prog .bar{height:7px; background:#E7E3DA; border-radius:99px; overflow:hidden}
+  .prog .barbox{height:7px; background:#E7E3DA; border-radius:99px; overflow:hidden}
   .prog .fill{height:100%; width:0; background:var(--green); transition:width .25s}
   .prog .row{display:flex; justify-content:space-between; align-items:center; margin-bottom:7px}
   .prog .row b{font-size:13px; font-weight:600}
   .prog .row span{font-size:12px; color:var(--muted)}
 
   .catlabel{font-size:11px; color:var(--muted); font-weight:600; letter-spacing:.02em;
-    margin:18px 16px 7px; text-transform:none}
+    margin:18px 16px 7px}
   .list{padding:0 12px}
 
   /* card */
@@ -55,17 +55,13 @@
   .s-none .name{text-decoration:line-through; color:var(--muted)}
   .badge{font-size:12px; padding:3px 9px; border-radius:99px; white-space:nowrap}
   .b-good{background:var(--green-bg); color:var(--green-tx)}
-  .b-action{background:var(--amber-bg); color:var(--amber-tx)}
   .b-need{background:var(--amber-bg); color:var(--amber-tx); font-weight:600}
   .b-none{background:var(--none-bg); color:var(--none-tx)}
-  .quick{border:1px solid var(--green); background:var(--green-bg); color:var(--green-tx);
-    font-size:13px; font-weight:600; height:34px; padding:0 12px; border-radius:8px; white-space:nowrap}
   .chev{color:var(--muted); font-size:18px; width:20px; text-align:center; flex:none}
 
   /* body */
   .cbody{padding:0 14px 14px; border-top:1px solid var(--line); display:none}
   .card.open .cbody{display:block}
-  .seg{display:flex; gap:6px; margin:12px 0 4px}
   .kebab{border:none; background:none; color:var(--muted); font-size:20px; line-height:1; padding:2px 4px; width:28px; flex:none; cursor:pointer}
   .popover{padding:9px 12px; border-top:1px solid var(--line); background:var(--bg); display:flex; gap:8px; flex-wrap:wrap}
   .popover button{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line2); background:var(--surface);
@@ -75,11 +71,6 @@
   .nonehint b{color:var(--ink)}
   .done{width:100%; height:46px; margin-top:14px; border:none; border-radius:11px;
     background:var(--head); color:#fff; font-size:15px; font-weight:600}
-  .seg button{flex:1; height:38px; border:1px solid var(--line2); background:var(--surface);
-    border-radius:9px; font-size:13px; font-weight:500; color:var(--muted)}
-  .seg button.on[data-status=good]{border-color:var(--green); background:var(--green-bg); color:var(--green-tx)}
-  .seg button.on[data-status=action]{border-color:var(--amber); background:var(--amber-bg); color:var(--amber-tx)}
-  .seg button.on[data-status=none]{border-color:var(--none); background:var(--none-bg); color:var(--none-tx)}
 
   .sub{font-size:11px; color:var(--muted); font-weight:600; margin:14px 0 7px}
   .cond{display:flex; gap:6px}
@@ -112,13 +103,12 @@
   textarea{width:100%; min-height:54px; border:1px solid var(--line2); border-radius:9px;
     padding:9px 10px; resize:vertical; background:var(--surface)}
 
-  /* dough lots */
+  /* lots */
   .lot{border:1px solid var(--line2); border-radius:10px; padding:10px 11px; margin-bottom:8px}
   .lot .lh{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
   .lot .lh b{font-size:13px} .lot .lh b span{color:var(--muted); font-weight:400; margin-left:5px}
   .lot .x{color:var(--muted); font-size:16px; background:none; border:none; padding:4px}
   .lgrid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-  .lgrid .g3{grid-template-columns:1fr 1fr 1fr}
   .lf label{display:block; font-size:11px; color:var(--muted); margin-bottom:3px}
   .lf input{width:100%; height:36px; border:1px solid var(--line2); border-radius:8px; padding:0 9px; background:var(--surface)}
   .dashed{width:100%; height:40px; border:1px dashed var(--line2); background:transparent; color:var(--muted);
@@ -140,15 +130,45 @@
   .agedrow .ai b{font-size:14px}
   .agedrow .ai span{font-size:12px; color:var(--amber-tx)}
   .planinput{width:100%; height:38px; border:1px solid var(--line2); border-radius:9px; padding:0 11px; background:var(--surface)}
-  .invrow{display:grid; grid-template-columns:1.3fr 0.9fr 0.8fr auto; gap:6px; margin-bottom:7px; align-items:center}
-  .invrow input{height:36px; border:1px solid var(--line2); border-radius:8px; padding:0 8px; background:var(--surface); width:100%}
-  .invrow .x{border:none; background:none; color:var(--muted); font-size:16px; padding:4px}
-  .addinv{font-size:13px; color:var(--green-tx); background:var(--green-bg); border:1px solid #Bfe3d3;
+
+  /* ── 홀 폼 공용 컴포넌트 ── */
+  .grouplabel{font-size:12px; color:var(--muted); font-weight:600; margin:14px 0 7px}
+  .grouplabel:first-child{margin-top:2px}
+  .orow{display:grid; grid-template-columns:1.5fr .7fr .8fr auto; gap:6px; margin-bottom:7px; align-items:center}
+  .orow input,.orow select{height:38px; border:1px solid var(--line2); border-radius:8px; padding:0 9px; background:var(--surface); width:100%; appearance:none; font-size:14px}
+  .orow select{padding-right:6px}
+  .orow input[data-f=unit]{color:var(--muted); text-align:center}
+  .orow .x{border:none; background:none; color:var(--muted); font-size:16px; padding:4px}
+  .addinv{font-size:13px; color:var(--green-tx); background:var(--green-bg); border:1px solid #BFE3D3;
     border-radius:8px; height:34px; padding:0 12px; margin-top:2px}
+  .checkrow{display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px solid var(--line)}
+  .checkrow:last-child{border-bottom:none}
+  .checkbox{width:24px; height:24px; border:1.5px solid var(--line2); border-radius:7px; flex:none;
+    display:flex; align-items:center; justify-content:center; background:var(--surface); font-size:14px; color:transparent}
+  .checkbox.on{background:var(--green); border-color:var(--green); color:#fff}
+  .checkrow .ct{flex:1; font-size:14px; line-height:1.4}
+  .checkrow.on .ct{color:var(--muted); text-decoration:line-through}
+  .checkrow .x{border:none; background:none; color:var(--muted); font-size:15px; padding:4px}
+  .person{border:1px solid var(--line2); border-radius:10px; padding:11px; margin-bottom:8px}
+  .person .ph{display:flex; gap:8px; align-items:center; margin-bottom:9px}
+  .person .ph input{flex:1; height:38px; border:1px solid var(--line2); border-radius:8px; padding:0 11px; background:var(--surface)}
+  .person .ph .x{border:none; background:none; color:var(--muted); font-size:16px; padding:4px}
+  .bigcheck{display:flex; align-items:center; gap:11px; margin-top:12px; padding:12px; border:1px solid var(--line2);
+    border-radius:10px; background:var(--bg); cursor:pointer}
+  .bigcheck.on{border-color:var(--green); background:var(--green-bg)}
+  .bigcheck .ct{font-size:14px; font-weight:500}
+  .oxrow{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+  .oxrow .oxlab{flex:1; font-size:14px; font-weight:500}
+  .ox{display:flex; gap:6px}
+  .ox button{width:50px; height:36px; border:1px solid var(--line2); background:var(--surface);
+    border-radius:8px; font-size:14px; font-weight:600; color:var(--muted)}
+  .ox button.on[data-v="o"]{border-color:var(--green); background:var(--green-bg); color:var(--green-tx)}
+  .ox button.on[data-v="x"]{border-color:var(--none); background:var(--none-bg); color:var(--none-tx)}
+  .placeholder{margin:40px 16px; text-align:center; color:var(--muted); font-size:14px; line-height:1.6}
 
   /* submit bar */
   .bar{position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--line);
-    padding:12px 16px calc(12px + env(safe-area-inset-bottom)); gap:10px; z-index:40; display:none}
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom)); z-index:40; display:none}
   .bar.visible{display:flex}
   .bar .wrapb{max-width:480px; margin:0 auto; width:100%; display:flex; gap:10px}
   .submit{flex:1; height:48px; border:none; border-radius:12px; background:var(--head); color:#fff; font-size:15px; font-weight:600}
@@ -169,6 +189,10 @@
   .pickrow button{border:1px solid var(--line2); background:var(--surface); border-radius:99px; padding:8px 13px; font-size:13.5px; color:var(--ink)}
   pre{background:#1B2F26; color:#D8E8DF; padding:13px; border-radius:10px; font-size:12px; overflow:auto; margin:0; line-height:1.55;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; word-break:break-word}
+  .savebox{display:flex; gap:8px; align-items:center; padding:10px 12px; border-radius:10px; margin-bottom:12px; font-size:13px}
+  .savebox.ok{background:var(--green-bg); color:var(--green-tx)}
+  .savebox.warn{background:var(--amber-bg); color:var(--amber-tx)}
+  .savebox b{font-weight:600}
   .copy{width:100%; height:44px; border:1px solid var(--line2); background:var(--surface); border-radius:10px;
     font-size:14px; font-weight:600; margin-top:12px; color:var(--ink)}
   .toast{position:fixed; bottom:84px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
@@ -203,17 +227,14 @@
 <!-- ── 홈 화면 ── -->
 <div id="home">
   <div class="home-head">
-    <h1>주방 보고</h1>
+    <h1>보고</h1>
     <p>지점과 보고 종류를 선택하세요</p>
   </div>
   <div class="home-body">
     <div class="home-sect">
       <label>지점</label>
       <select id="homeBranch">
-        <option>북성수</option>
-        <option>여의도</option>
-        <option>신세계강남</option>
-        <option>청계천</option>
+        <option>북성수</option><option>여의도</option><option>신세계강남</option><option>청계천</option>
       </select>
     </div>
     <div class="home-sect">
@@ -227,25 +248,17 @@
     <div class="home-sect">
       <label>보고 종류</label>
       <div class="type-grid" id="typeGrid">
-        <button type="button" class="type-card" data-type="주방 오픈">
-          <span class="tc-icon">☀️</span>
-          <div class="tc-title">주방 오픈</div>
-          <div class="tc-desc">재료 선도·컨디션 확인</div>
+        <button type="button" class="type-card" data-type="kitchen_open">
+          <span class="tc-icon">☀️</span><div class="tc-title">주방 오픈</div><div class="tc-desc">재료 선도·컨디션 확인</div>
         </button>
-        <button type="button" class="type-card" data-type="주방 마감">
-          <span class="tc-icon">🌙</span>
-          <div class="tc-title">주방 마감</div>
-          <div class="tc-desc">잔여 재고·보관 상태</div>
+        <button type="button" class="type-card" data-type="kitchen_close">
+          <span class="tc-icon">🌙</span><div class="tc-title">주방 마감</div><div class="tc-desc">잔여 재고·보관 상태</div>
         </button>
-        <button type="button" class="type-card" data-type="홀 오픈">
-          <span class="tc-icon">🪑</span>
-          <div class="tc-title">홀 오픈</div>
-          <div class="tc-desc">홀 세팅·비품 확인</div>
+        <button type="button" class="type-card" data-type="hall_open">
+          <span class="tc-icon">🪑</span><div class="tc-title">홀 오픈</div><div class="tc-desc">포지션·특이사항</div>
         </button>
-        <button type="button" class="type-card" data-type="홀 마감">
-          <span class="tc-icon">🔒</span>
-          <div class="tc-title">홀 마감</div>
-          <div class="tc-desc">정리·마감 체크</div>
+        <button type="button" class="type-card" data-type="hall_close">
+          <span class="tc-icon">🔒</span><div class="tc-title">홀 마감</div><div class="tc-desc">발주·인수인계</div>
         </button>
       </div>
     </div>
@@ -253,7 +266,7 @@
   </div>
 </div>
 
-<!-- ── 입력 폼 ── -->
+<!-- ── 입력 폼 (공용 shell) ── -->
 <div id="form" class="hidden">
 <div class="wrap">
   <div class="top">
@@ -263,48 +276,101 @@
     </div>
     <h1 id="formTitle">보고</h1>
     <div class="meta">
-      <div class="fld"><label>지점</label>
-        <select id="branch"></select></div>
-      <div class="fld"><label>보고일</label>
-        <input type="date" id="rdate"></div>
-      <div class="fld full"><label>작성자</label>
-        <input id="author" placeholder="작성 셰프"></div>
+      <div class="fld"><label>지점</label><select id="branch"></select></div>
+      <div class="fld"><label>보고일</label><input type="date" id="rdate"></div>
+      <div class="fld full"><label>작성자</label><input id="author" placeholder="작성자"></div>
     </div>
   </div>
 
-  <div class="prog">
-    <div class="row"><b id="pcount">0 / 0 확인</b><span id="pleft">남은 항목 0</span></div>
-    <div class="bar2"><div class="bar" style="height:7px;background:#E7E3DA;border-radius:99px;overflow:hidden">
-      <div class="fill" id="pfill"></div></div></div>
+  <!-- ===== 주방 오픈 ===== -->
+  <div id="tpl-kitchen-open" class="tpl">
+    <div class="prog" id="kProg">
+      <div class="row"><b id="pcount">0 / 0 확인</b><span id="pleft">남은 항목 0</span></div>
+      <div class="barbox"><div class="fill" id="pfill"></div></div>
+    </div>
+    <div id="list" class="list"></div>
+    <div class="addcard">
+      <button class="addbig" id="addItem">＋ 재료 추가 <span style="font-size:12px;color:var(--muted)">(레몬컷·어니언칩 등 비정기)</span></button>
+    </div>
+    <div class="sect">
+      <h3>3일 이상 재고 <span class="auto">자동</span></h3>
+      <p class="hint">위에서 입력한 로트 중 <b>보고일 − 생산일 ≥ 3일</b>인 항목이 자동으로 올라옵니다.</p>
+      <div id="agedList"></div>
+    </div>
+    <div class="sect">
+      <h3>특이사항</h3>
+      <p class="hint">한 줄씩 Enter로 추가</p>
+      <div id="genTags" class="tags"></div>
+      <input id="genInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter">
+    </div>
   </div>
 
-  <div id="list" class="list"></div>
-
-  <div class="addcard">
-    <button class="addbig" id="addItem">＋ 재료 추가 <span style="font-size:12px;color:var(--muted)">(레몬컷·어니언칩 등 비정기)</span></button>
+  <!-- ===== 홀 오픈 ===== -->
+  <div id="tpl-hall-open" class="tpl hidden">
+    <div class="sect">
+      <h3>금일 포지션</h3>
+      <p class="hint">인원을 추가하고 담당 포지션을 선택하세요. 한 사람이 여러 포지션 가능.</p>
+      <div id="hoPeople"></div>
+      <button class="dashed" id="hoAddPerson" style="margin-top:4px">＋ 인원 추가</button>
+    </div>
+    <div class="sect">
+      <h3>고정 항목</h3>
+      <p class="hint">업셀링·리뷰빵 진행 여부</p>
+      <div class="oxrow"><span class="oxlab">업셀링</span>
+        <div class="ox" data-key="upselling">
+          <button data-v="o">O</button><button data-v="x">X</button></div></div>
+      <div class="oxrow"><span class="oxlab">리뷰빵</span>
+        <div class="ox" data-key="review_bread">
+          <button data-v="o">O</button><button data-v="x">X</button></div></div>
+    </div>
+    <div class="sect">
+      <h3>특이사항</h3>
+      <p class="hint">한 줄씩 Enter로 추가 — 창문 서비스, 인력 배치 변경 등</p>
+      <div id="hoNotesTags" class="tags"></div>
+      <input id="hoNotesInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter">
+    </div>
   </div>
 
-  <div class="sect">
-    <h3>3일 이상 재고 <span class="auto">자동</span></h3>
-    <p class="hint">위에서 입력한 로트 중 <b>보고일 − 생산일 ≥ 3일</b>인 항목이 자동으로 올라옵니다. 각 항목에 처리 계획을 적어주세요.</p>
-    <div id="agedList"></div>
+  <!-- ===== 홀 마감 ===== -->
+  <div id="tpl-hall-close" class="tpl hidden">
+    <div class="sect">
+      <h3>발주 &amp; 재고 체크</h3>
+      <p class="hint">음료/주류·소모품 발주 내역을 추가하고, 재고 리스트 반영을 표시하세요.</p>
+      <div class="grouplabel">음료 / 주류</div>
+      <div id="hcBev"></div>
+      <button class="addinv" data-grp="bev">＋ 음료/주류 추가</button>
+      <div class="grouplabel">소모품</div>
+      <div id="hcCon"></div>
+      <button class="addinv" data-grp="con">＋ 소모품 추가</button>
+      <div class="bigcheck" id="hcInv"><span class="checkbox">✓</span><span class="ct">재고 리스트 업데이트 완료</span></div>
+    </div>
+    <div class="sect">
+      <h3>오픈조 할일</h3>
+      <p class="hint">오픈 인력이 처리할 항목 체크리스트</p>
+      <div id="hcTasks"></div>
+      <input id="hcTaskInput" class="noteinput" type="text" placeholder="할일 입력 후 Enter (예: 원두 갈기)" style="margin-top:4px">
+    </div>
+    <div class="sect">
+      <h3>인수인계 및 특이사항</h3>
+      <p class="hint">한 줄씩 Enter로 추가</p>
+      <div id="hcNotesTags" class="tags"></div>
+      <input id="hcNotesInput" class="noteinput" type="text" placeholder="인수인계 입력 후 Enter">
+    </div>
   </div>
 
-  <div class="sect">
-    <h3>특이사항</h3>
-    <p class="hint">한 줄씩 Enter로 추가 — 발효 컨트롤, 리뷰빵, 3일차 항목 등</p>
-    <div id="genTags" class="tags"></div>
-    <input id="genInput" class="noteinput" type="text" placeholder="특이사항 입력 후 Enter로 추가">
+  <!-- ===== 주방 마감 (미구현 placeholder) ===== -->
+  <div id="tpl-kitchen-close" class="tpl hidden">
+    <div class="placeholder">주방 마감 양식은 준비 중입니다.<br>항목 리스트를 주시면 동일 방식으로 추가합니다.</div>
   </div>
+
 </div>
 
 <div class="bar"><div class="wrapb">
   <button class="submit" id="submit">보고 제출</button>
 </div></div>
-
 </div>
 
-<!-- add-item sheet -->
+<!-- add-item sheet (주방오픈) -->
 <div class="ov" id="ovAdd"><div class="sheet">
   <div class="sh"><b>재료 추가</b><button id="closeAdd">✕</button></div>
   <div class="sc" id="pickBody"></div>
@@ -314,6 +380,7 @@
 <div class="ov" id="ovSub"><div class="sheet">
   <div class="sh"><b>제출 데이터 (Supabase 저장 형태)</b><button id="closeSub">✕</button></div>
   <div class="sc">
+    <div id="saveBox"></div>
     <pre id="json"></pre>
     <button class="copy" id="copyJson">JSON 복사</button>
   </div>
@@ -322,7 +389,34 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ---------- 마스터 데이터 (4개 지점 통합) ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+
+const TYPE_LABEL={kitchen_open:'주방 오픈',kitchen_close:'주방 마감',hall_open:'홀 오픈',hall_close:'홀 마감'};
+let activeTemplate=null;
+
+/* =====================================================================
+   Supabase (모의 연결) — 단일 reports 테이블 + payload JSONB 가정
+   실제 연결 시 아래 saveReport()만 supabase.from('reports').insert() 로 교체
+===================================================================== */
+const SUPABASE = {
+  connected:false,                 // 아직 실제 연결 X
+  table:'reports',
+  async save(payload){
+    // 실제: const {data,error}=await supabase.from(this.table).insert(payload).select().single();
+    if(!this.connected){
+      return {ok:false, simulated:true, table:this.table,
+        message:'미연결 — 저장 형태만 검증', row:withMeta(payload)};
+    }
+    return {ok:true, row:withMeta(payload)};
+  }
+};
+function withMeta(p){ return Object.assign({id:'(uuid auto)', created_at:'(now auto)'}, p); }
+
+/* =====================================================================
+   주방 오픈  (기존 로직)
+===================================================================== */
 const SCALE={
  '맛':['부족','양호','우수'],'밸런스':['부족','양호','우수'],'맛밸런스':['부족','양호','우수'],
  '염도':['부족','양호','높음'],'짠맛':['부족','양호','높음'],
@@ -376,18 +470,12 @@ const ITEMS={
 const CAT_ORDER=['도우','프로틴','스프/베이스','스프레드','건재료','소스','치즈','야채포션','기타'];
 const FULL=['도우','잠봉슬라이스','풀드포크','게새포','계란','치킨(닭)','연어','스프','베토소','허니버터','호두','BD','샌프란','스리라차','나르코티코','RTM','연어(야채)','크랩포션','치킨포션'];
 const BRANCHES={
- '북성수':FULL.slice(),
- '여의도':FULL.slice(),
+ '북성수':FULL.slice(),'여의도':FULL.slice(),
  '신세계강남':['도우','잠봉슬라이스','베토소','허니버터','BD','RTM','그라나파다노','슬라이스치즈','피오르디','레몬컷'],
  '청계천':['도우','잠봉슬라이스','풀드포크','게새포','계란','치킨(닭)','연어','스프','베토소','허니버터','호두','어니언칩','BD','샌프란','스리라차','나르코티코','그라나파다노','슬라이스치즈','슈레드치즈','RTM','연어(야채)','크랩포션','치킨포션']
 };
-
-/* ---------- 상태 ---------- */
-let roster=[]; let st={}; let inv=[]; let gen=[]; let added=new Set(); let menuOpen=null; let agedPlans={};
+let roster=[]; let st={}; let gen=[]; let added=new Set(); let menuOpen=null; let agedPlans={};
 function closeMenus(except){ if(menuOpen && menuOpen!==except && st[menuOpen]){ const n=menuOpen; menuOpen=null; st[n]._menu=false; refreshCard(n); } }
-const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
 function newLot(name){
   const it=ITEMS[name];
   if(it.special) return {prodDate:'',pan:'',ferm:'',cold:'',note:''};
@@ -396,15 +484,12 @@ function newLot(name){
 }
 function initItem(name){ return {status:'pending',lots:[newLot(name)]}; }
 function loadBranch(b){
-  roster=(BRANCHES[b]||[]).slice(); st={}; added=new Set(); agedPlans={};
+  roster=(BRANCHES[b]||[]).slice(); st={}; added=new Set(); agedPlans={}; gen=[];
   roster.forEach(n=>st[n]=initItem(n));
-  render(); renderAged();
+  render(); renderAged(); renderGen();
 }
-
-/* ---------- 렌더 ---------- */
 function render(){
-  const L=$('#list'); L.innerHTML='';
-  let lastCat=null;
+  const L=$('#list'); L.innerHTML=''; let lastCat=null;
   roster.forEach(name=>{
     const cat=ITEMS[name].cat;
     if(cat!==lastCat){const h=document.createElement('div');h.className='catlabel';h.textContent=cat;L.appendChild(h);lastCat=cat;}
@@ -412,61 +497,42 @@ function render(){
   });
   updateProgress();
 }
-function cardEl(name){
-  const d=document.createElement('div'); d.dataset.card=name; setCardClass(d,name); d.innerHTML=cardInner(name); return d;
-}
-function setCardClass(d,name){const s=st[name].status; d.className='card s-'+s+(s==='action'?'':'')+(st[name]._open?' open':'');}
+function cardEl(name){const d=document.createElement('div'); d.dataset.card=name; setCardClass(d,name); d.innerHTML=cardInner(name); return d;}
+function setCardClass(d,name){const s=st[name].status; d.className='card s-'+s+(st[name]._open?' open':'');}
 function refreshCard(name){const d=$('[data-card="'+CSS.escape(name)+'"]'); if(!d)return; setCardClass(d,name); d.innerHTML=cardInner(name); updateProgress();}
-
 function cardInner(name){
   const it=ITEMS[name], s=st[name];
-  let head=`<div class="chead" data-act="toggle" data-item="${name}">
-      <span class="dot"></span><span class="name">${name}</span>`;
+  let head=`<div class="chead" data-act="toggle" data-item="${name}"><span class="dot"></span><span class="name">${name}</span>`;
   if(s.status==='pending') head+=`<span class="badge b-need">입력 필요</span>`;
   else if(s.status==='good') head+=`<span class="badge b-good">${it.special?'기록됨':'확인 완료 · '+s.cond+'%'}</span>`;
   else head+=`<span class="badge b-none">오늘 없음</span>`;
   head+=`<button class="kebab" data-act="menu" data-item="${name}" aria-label="옵션">⋯</button>`;
   head+=`<span class="chev">${s._open?'▾':'▸'}</span></div>`;
   if(s._menu){
-    head+=`<div class="popover">`+
-      (s.status==='none'
+    head+=`<div class="popover">`+(s.status==='none'
         ? `<button data-act="revert" data-item="${name}"><span class="pi">↩</span> 입력하기</button>`
-        : `<button data-act="setnone" data-item="${name}"><span class="pi">∅</span> 오늘 없음으로 표시</button>`)+
-      `</div>`;
+        : `<button data-act="setnone" data-item="${name}"><span class="pi">∅</span> 오늘 없음으로 표시</button>`)+`</div>`;
   }
-
   if(!s._open) return head;
-
-  // body
   let body=`<div class="cbody">`;
-
   if(it.special){ body+=doughBody(name); }
-  else if(s.status==='none'){
-    body+=`<p class="nonehint">오늘 없음으로 표시됨 — 입력하려면 우측 <b>⋯</b> 메뉴</p>`;
-  }
+  else if(s.status==='none'){ body+=`<p class="nonehint">오늘 없음으로 표시됨 — 입력하려면 우측 <b>⋯</b> 메뉴</p>`; }
   else {
     s.lots.forEach((lo,i)=>{ body+=lotBox(name,lo,i,s.lots.length); });
     body+=`<button class="dashed" data-act="addlot" data-item="${name}">＋ 로트 추가 (다른 생산일)</button>`;
     body+=`<button class="done" data-act="done" data-item="${name}">입력 완료</button>`;
   }
   if(added.has(name)) body+=`<button class="delitem" data-act="delitem" data-item="${name}">이 재료 삭제</button>`;
-  body+=`</div>`;
-  return head+body;
+  body+=`</div>`; return head+body;
 }
 function lotBox(name,lo,i,n){
   const it=ITEMS[name], presets=[100,95,90];
   let h=`<div class="lot"><div class="lh"><b>로트 ${i+1}<span>${lo.prodDate||'생산일 미입력'}</span></b>`+
     (n>1?`<button class="x" data-act="rmlot" data-item="${name}" data-i="${i}">✕</button>`:'')+`</div>`;
-  // 생산일 + 수량
-  h+=`<div class="lgrid">`+
-    lf(name,i,'prodDate','생산일','','date',lo.prodDate)+
-    lf(name,i,'qty','수량','예 12개','text',lo.qty)+`</div>`;
-  // 컨디션
+  h+=`<div class="lgrid">`+lf(name,i,'prodDate','생산일','','date',lo.prodDate)+lf(name,i,'qty','수량','예 12개','text',lo.qty)+`</div>`;
   h+=`<div class="sub">컨디션</div><div class="cond">`+
     presets.map(c=>`<button data-act="cond" data-item="${name}" data-i="${i}" data-c="${c}" class="${lo.cond===c?'on':''}">${c}%</button>`).join('')+
-    `<div class="direct ${presets.includes(lo.cond)?'':'on'}"><input type="number" inputmode="numeric" min="0" max="100" data-act="condinput" data-item="${name}" data-i="${i}" value="${lo.cond}" aria-label="컨디션 직접 입력"><span>%</span></div>`+
-    `</div>`;
-  // 평가 항목
+    `<div class="direct ${presets.includes(lo.cond)?'':'on'}"><input type="number" inputmode="numeric" min="0" max="100" data-act="condinput" data-item="${name}" data-i="${i}" value="${lo.cond}" aria-label="컨디션 직접 입력"><span>%</span></div></div>`;
   h+=`<div class="sub">평가 항목</div>`;
   (it.attrs||[]).forEach(a=>{
     const cur=lo.attrVals[a], def=attrDefault(a);
@@ -474,104 +540,40 @@ function lotBox(name,lo,i,n){
       attrOpts(a).map(o=>`<button class="pill ${o===cur?'on':''} ${o===cur&&o!==def?'flag':''}" data-act="attr" data-item="${name}" data-i="${i}" data-a="${a}" data-v="${o}">${o}</button>`).join('')+
       `</div></div>`;
   });
-  // 메모 · 조치
   h+=`<div class="sub">메모 · 조치</div>`;
   if((it.actions||[]).length){
-    h+=`<div class="ctas">`+
-      it.actions.map(a=>`<button class="achip ${lo.notes.includes(a)?'on':''}" data-act="cta" data-item="${name}" data-i="${i}" data-x="${a}">＋ ${a}</button>`).join('')+`</div>`;
+    h+=`<div class="ctas">`+it.actions.map(a=>`<button class="achip ${lo.notes.includes(a)?'on':''}" data-act="cta" data-item="${name}" data-i="${i}" data-x="${a}">＋ ${a}</button>`).join('')+`</div>`;
   }
   if(lo.notes.length){
-    h+=`<div class="tags">`+
-      lo.notes.map((nt,j)=>`<span class="tag">${esc(nt)}<button data-act="rmnote" data-item="${name}" data-i="${i}" data-j="${j}" aria-label="삭제">✕</button></span>`).join('')+`</div>`;
+    h+=`<div class="tags">`+lo.notes.map((nt,j)=>`<span class="tag">${esc(nt)}<button data-act="rmnote" data-item="${name}" data-i="${i}" data-j="${j}" aria-label="삭제">✕</button></span>`).join('')+`</div>`;
   }
-  h+=`<input class="noteinput" type="text" data-act="noteinput" data-item="${name}" data-i="${i}" placeholder="직접 입력 후 Enter로 추가">`;
-  h+=`</div>`;
-  return h;
+  h+=`<input class="noteinput" type="text" data-act="noteinput" data-item="${name}" data-i="${i}" placeholder="직접 입력 후 Enter">`;
+  h+=`</div>`; return h;
 }
-function seg(name,status,label){const on=st[name].status===status?'on':'';return `<button class="${on}" data-act="status" data-item="${name}" data-status="${status}">${label}</button>`;}
-
 function doughBody(name){
-  const s=st[name];
-  let h=`<div class="sub">로트 ${s.lots.length}건</div>`;
+  const s=st[name]; let h=`<div class="sub">로트 ${s.lots.length}건</div>`;
   s.lots.forEach((lo,i)=>{
     h+=`<div class="lot"><div class="lh"><b>로트 ${i+1}<span>${lo.prodDate||'날짜 미입력'}</span></b>`+
       (s.lots.length>1?`<button class="x" data-act="rmlot" data-item="${name}" data-i="${i}">✕</button>`:'')+`</div>`+
-      `<div class="lgrid g3" style="grid-template-columns:1fr 1fr 1fr">`+
-      lf(name,i,'prodDate','생산일','','date',lo.prodDate)+
-      lf(name,i,'pan','판수','예 5판','text',lo.pan)+
-      lf(name,i,'ferm','발효도%','93','text',lo.ferm)+`</div>`+
-      `<div class="lgrid" style="margin-top:8px">`+
-      lf(name,i,'cold','냉기%','10','text',lo.cold)+
-      lf(name,i,'note','메모','전판 꺼냄 등','text',lo.note)+`</div></div>`;
+      `<div class="lgrid" style="grid-template-columns:1fr 1fr 1fr">`+
+      lf(name,i,'prodDate','생산일','','date',lo.prodDate)+lf(name,i,'pan','판수','예 5판','text',lo.pan)+lf(name,i,'ferm','발효도%','93','text',lo.ferm)+`</div>`+
+      `<div class="lgrid" style="margin-top:8px">`+lf(name,i,'cold','냉기%','10','text',lo.cold)+lf(name,i,'note','메모','전판 꺼냄 등','text',lo.note)+`</div></div>`;
   });
   h+=`<button class="dashed" data-act="addlot" data-item="${name}">＋ 날짜 추가</button>`;
-  h+=`<button class="done" data-act="done" data-item="${name}">입력 완료</button>`;
-  return h;
+  h+=`<button class="done" data-act="done" data-item="${name}">입력 완료</button>`; return h;
 }
 function lf(name,i,field,label,ph,type,val){
   return `<div class="lf"><label>${label}</label><input type="${type}" data-act="lot" data-item="${name}" data-i="${i}" data-f="${field}" placeholder="${ph}" value="${val||''}"></div>`;
 }
-
-/* ---------- 이벤트 (위임) ---------- */
-$('#list').addEventListener('click',e=>{
-  const t=e.target.closest('[data-act]'); if(!t)return;
-  const act=t.dataset.act, name=t.dataset.item;
-  if(act==='toggle'){ st[name]._menu=false; closeMenus(name); st[name]._open=!st[name]._open; refreshCard(name); }
-  else if(act==='menu'){ const open=st[name]._menu; closeMenus(); st[name]._menu=!open; menuOpen=st[name]._menu?name:null; refreshCard(name); }
-  else if(act==='setnone'){ st[name].status='none'; st[name]._menu=false; st[name]._open=false; menuOpen=null; refreshCard(name); renderAged(); }
-  else if(act==='revert'){ st[name].status='pending'; st[name]._menu=false; st[name]._open=true; menuOpen=null; refreshCard(name); renderAged(); }
-  else if(act==='done'){ st[name].status='good'; st[name]._open=false; refreshCard(name); }
-  else if(act==='cond'){ st[name].lots[+t.dataset.i].cond=+t.dataset.c; refreshCard(name); }
-  else if(act==='attr'){ st[name].lots[+t.dataset.i].attrVals[t.dataset.a]=t.dataset.v; refreshCard(name); }
-  else if(act==='cta'){ const a=t.dataset.x,arr=st[name].lots[+t.dataset.i].notes,k=arr.indexOf(a); k<0?arr.push(a):arr.splice(k,1); refreshCard(name); }
-  else if(act==='rmnote'){ st[name].lots[+t.dataset.i].notes.splice(+t.dataset.j,1); refreshCard(name); }
-  else if(act==='delitem'){ roster=roster.filter(n=>n!==name); delete st[name]; added.delete(name); render(); renderAged(); }
-  else if(act==='addlot'){ st[name].lots.push(newLot(name)); refreshCard(name); }
-  else if(act==='rmlot'){ st[name].lots.splice(+t.dataset.i,1); refreshCard(name); renderAged(); }
-});
-$('#list').addEventListener('input',e=>{
-  const t=e.target.closest('[data-act]'); if(!t)return;
-  const name=t.dataset.item, i=+t.dataset.i;
-  if(t.dataset.act==='condinput'){
-    let v=parseInt(t.value,10); if(isNaN(v))return; if(v>100)v=100; if(v<0)v=0;
-    st[name].lots[i].cond=v;
-    const lotEl=t.closest('.lot');
-    lotEl.querySelectorAll('.cond button').forEach(b=>b.classList.remove('on'));
-    lotEl.querySelector('.direct').classList.toggle('on',![100,95,90].includes(v));
-  }
-  else if(t.dataset.act==='lot'){
-    st[name].lots[i][t.dataset.f]=t.value;
-    if(t.dataset.f==='prodDate') renderAged();
-  }
-});
-$('#list').addEventListener('keydown',e=>{
-  const t=e.target.closest('[data-act=noteinput]'); if(!t)return;
-  if(e.key==='Enter'){
-    e.preventDefault();
-    const name=t.dataset.item, i=+t.dataset.i, v=t.value.trim();
-    if(v && !st[name].lots[i].notes.includes(v)) st[name].lots[i].notes.push(v);
-    t.value='';
-    refreshCard(name);
-    const card=document.querySelector('[data-card="'+CSS.escape(name)+'"]');
-    const lot=card&&card.querySelectorAll('.lot')[i];
-    const ni=lot&&lot.querySelector('.noteinput'); if(ni)ni.focus();
-  }
-});
-
-/* ---------- 진행률 ---------- */
 function updateProgress(){
-  const total=roster.length;
-  const done=roster.filter(n=>st[n].status!=='pending').length;
-  const left=total-done;
+  const total=roster.length, done=roster.filter(n=>st[n].status!=='pending').length, left=total-done;
   $('#pcount').textContent=`${done} / ${total} 확인`;
   $('#pleft').textContent=`남은 항목 ${left}`;
   $('#pfill').style.width=(total?done/total*100:0)+'%';
-  const sb=$('#submit');
-  sb.disabled=left>0;
-  sb.textContent=left>0?`입력 필요 ${left}개 남음`:'보고 제출';
+  if(activeTemplate==='kitchen_open'){
+    const sb=$('#submit'); sb.disabled=left>0; sb.textContent=left>0?`입력 필요 ${left}개 남음`:'보고 제출';
+  }
 }
-
-/* ---------- 재료 추가 시트 ---------- */
 function openAdd(){
   const body=$('#pickBody'); body.innerHTML='';
   const avail=Object.keys(ITEMS).filter(n=>!roster.includes(n));
@@ -586,140 +588,318 @@ function openAdd(){
   $('#ovAdd').classList.add('show');
 }
 function addItem(name){
-  // 카테고리 순서 유지하며 삽입
-  roster.push(name);
-  roster.sort((a,b)=>CAT_ORDER.indexOf(ITEMS[a].cat)-CAT_ORDER.indexOf(ITEMS[b].cat));
+  roster.push(name); roster.sort((a,b)=>CAT_ORDER.indexOf(ITEMS[a].cat)-CAT_ORDER.indexOf(ITEMS[b].cat));
   st[name]=initItem(name); st[name]._open=true; added.add(name);
   $('#ovAdd').classList.remove('show'); render();
   const el=$('[data-card="'+CSS.escape(name)+'"]'); if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
 }
-
-/* ---------- 3일 이상 재고 ---------- */
 function agedKey(name,i,prodDate){return name+'|'+i+'|'+prodDate;}
 function agedList(){
-  const rd=$('#rdate').value; const out=[];
-  if(!rd) return out;
+  const rd=$('#rdate').value; const out=[]; if(!rd) return out;
   const rdate=new Date(rd+'T00:00:00');
   roster.forEach(name=>{
     if(st[name].status==='none') return;
     (st[name].lots||[]).forEach((lo,i)=>{
       if(!lo.prodDate) return;
-      const d=new Date(lo.prodDate+'T00:00:00');
-      const days=Math.floor((rdate-d)/86400000);
+      const days=Math.floor((rdate-new Date(lo.prodDate+'T00:00:00'))/86400000);
       if(days>=3) out.push({name,i,prodDate:lo.prodDate,days,qty:(ITEMS[name].special?lo.pan:lo.qty)||''});
     });
   });
-  out.sort((a,b)=>b.days-a.days);
-  return out;
+  out.sort((a,b)=>b.days-a.days); return out;
 }
 function renderAged(){
-  const L=$('#agedList'); L.innerHTML='';
-  const list=agedList();
+  const L=$('#agedList'); L.innerHTML=''; const list=agedList();
   if(!list.length){ L.innerHTML='<p class="hint" style="margin:0">3일 이상 경과한 재고가 없습니다.</p>'; return; }
   list.forEach(r=>{
     const key=agedKey(r.name,r.i,r.prodDate);
     const row=document.createElement('div'); row.className='agedrow';
     row.innerHTML=`<div class="ai"><b>${esc(r.name)}</b><span>${r.prodDate} · ${r.days}일 경과${r.qty?' · '+esc(r.qty):''}</span></div>`;
     const pi=document.createElement('input'); pi.className='planinput'; pi.placeholder='처리 계획 (예: 익일 소진 / 직식 전환)';
-    pi.value=agedPlans[key]||'';
-    pi.addEventListener('input',()=>{agedPlans[key]=pi.value;});
+    pi.value=agedPlans[key]||''; pi.addEventListener('input',()=>{agedPlans[key]=pi.value;});
     row.appendChild(pi); L.appendChild(row);
   });
 }
-
-/* ---------- 특이사항 (태그 리스트) ---------- */
 function renderGen(){
   const L=$('#genTags');
   L.innerHTML=gen.map((n,i)=>`<span class="tag">${esc(n)}<button data-i="${i}" aria-label="삭제">✕</button></span>`).join('');
   L.querySelectorAll('button').forEach(b=>b.onclick=()=>{gen.splice(+b.dataset.i,1);renderGen();});
 }
-
-/* ---------- 제출 ---------- */
-function buildPayload(){
+function kitchenPayload(){
   const items=roster.map(name=>{
     const it=ITEMS[name], s=st[name];
-    if(it.special){
-      return {item_name:name,category:it.cat,status:s.status,
-        lots:s.lots.map(l=>({prod_date:l.prodDate||null,quantity:l.pan||null,fermentation:l.ferm||null,cold:l.cold||null,note:l.note||null}))};
-    }
+    if(it.special) return {item_name:name,category:it.cat,status:s.status,
+      lots:s.lots.map(l=>({prod_date:l.prodDate||null,quantity:l.pan||null,fermentation:l.ferm||null,cold:l.cold||null,note:l.note||null}))};
     return {item_name:name,category:it.cat,status:s.status,
       lots:s.status==='none'?[]:s.lots.map(l=>({
-        prod_date:l.prodDate||null,
-        quantity:l.qty||null,
-        condition_pct:l.cond,
+        prod_date:l.prodDate||null, quantity:l.qty||null, condition_pct:l.cond,
         issues:(it.attrs||[]).filter(a=>l.attrVals[a]!==attrDefault(a)).map(a=>({attr:a,value:l.attrVals[a]})),
-        notes:l.notes
-      }))};
+        notes:l.notes }))};
   });
   const aged=agedList().map(r=>({item_name:r.name,prod_date:r.prodDate,days_old:r.days,quantity:r.qty||null,plan:agedPlans[agedKey(r.name,r.i,r.prodDate)]||null}));
-  return {
-    report:{branch:$('#branch').value,report_date:$('#rdate').value,shift:currentType,
-      author:$('#author').value||null,general_notes:gen},
-    items,
-    aged_inventory:aged
-  };
+  return {report:reportHeader('kitchen_open'), items, aged_inventory:aged};
 }
-function submit(){
-  $('#json').textContent=JSON.stringify(buildPayload(),null,2);
+
+/* =====================================================================
+   홀 오픈
+===================================================================== */
+const HALL_POSITIONS=['파스','포장','인포','러너','설거지'];
+let hoPeople=[]; let hoChecks={upselling:null,review_bread:null}; let hoNotes=[];
+function hoInit(){
+  hoPeople=[{name:'',roles:[]}]; hoChecks={upselling:null,review_bread:null}; hoNotes=[];
+  hoRenderPeople(); hoRenderChecks(); hoRenderNotes();
+}
+function hoRenderPeople(){
+  const L=$('#hoPeople'); L.innerHTML='';
+  hoPeople.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='person';
+    d.innerHTML=`<div class="ph"><input data-i="${i}" data-f="name" placeholder="이름" value="${esc(p.name)}">`+
+      (hoPeople.length>1?`<button class="x" data-act="rmperson" data-i="${i}">✕</button>`:'')+`</div>`+
+      `<div class="pills">`+HALL_POSITIONS.map(r=>`<button class="pill ${p.roles.includes(r)?'on':''}" data-act="role" data-i="${i}" data-r="${r}">${r}</button>`).join('')+`</div>`;
+    L.appendChild(d);
+  });
+}
+function hoRenderChecks(){
+  document.querySelectorAll('#tpl-hall-open .ox').forEach(box=>{
+    const key=box.dataset.key;
+    box.querySelectorAll('button').forEach(b=>b.classList.toggle('on', hoChecks[key]===b.dataset.v));
+  });
+}
+function hoRenderNotes(){
+  const L=$('#hoNotesTags');
+  L.innerHTML=hoNotes.map((n,i)=>`<span class="tag">${esc(n)}<button data-i="${i}">✕</button></span>`).join('');
+  L.querySelectorAll('button').forEach(b=>b.onclick=()=>{hoNotes.splice(+b.dataset.i,1);hoRenderNotes();});
+}
+function hoPayload(){
+  const people=hoPeople.filter(p=>p.name.trim()).map(p=>({name:p.name.trim(),roles:p.roles}));
+  const by_position=HALL_POSITIONS.map(pos=>({position:pos, staff:people.filter(p=>p.roles.includes(pos)).map(p=>p.name)}));
+  return {report:reportHeader('hall_open'),
+    positions:people, by_position,
+    checks:{upselling:hoChecks.upselling, review_bread:hoChecks.review_bread},
+    general_notes:hoNotes};
+}
+
+/* =====================================================================
+   홀 마감
+===================================================================== */
+let hcBev=[]; let hcCon=[]; let hcInvDone=false; let hcTasks=[]; let hcNotes=[];
+
+/* 발주 품목 마스터 — 데이터 일관성을 위한 고정 목록 (자유롭게 추가/수정)
+   bev = 음료/주류, con = 소모품 */
+const ORDER_ITEMS={
+  bev:['콜라','제로콜라','사이다','생수','스파클링워터','오렌지주스','자몽에이드','아메리카노 원액','맥주','레드와인','화이트와인'],
+  con:['스푼','포크','나이프','냅킨','물티슈','퇴식구 물티슈','빨대','크로스타 용기','포장봉투','1구 캐리어','2구 캐리어','스프레드 스푼']
+};
+/* 품목 → 단위. 지금은 전부 박스. 추후 {'스푼':'팩','콜라':'캔'} 처럼 품목별로 지정 가능 */
+const UNIT_MAP={};
+const DEFAULT_UNIT='박스';
+function itemUnit(name){ return UNIT_MAP[name] || DEFAULT_UNIT; }
+
+function hcInit(){
+  hcBev=[{item:'',qty:'',unit:''}]; hcCon=[{item:'',qty:'',unit:''}]; hcInvDone=false; hcTasks=[]; hcNotes=[];
+  hcRenderOrders(); hcRenderInv(); hcRenderTasks(); hcRenderNotes();
+}
+function orderRows(arr,grp){
+  return arr.map((r,i)=>{
+    const opts=`<option value="">품목 선택</option>`+
+      ORDER_ITEMS[grp].map(n=>`<option ${r.item===n?'selected':''}>${esc(n)}</option>`).join('');
+    return `<div class="orow">`+
+      `<select data-grp="${grp}" data-i="${i}" data-f="item">${opts}</select>`+
+      `<input type="number" inputmode="numeric" min="0" data-grp="${grp}" data-i="${i}" data-f="qty" placeholder="수량" value="${esc(r.qty)}">`+
+      `<input data-grp="${grp}" data-i="${i}" data-f="unit" placeholder="단위" value="${esc(r.unit)}">`+
+      `<button class="x" data-act="rmorder" data-grp="${grp}" data-i="${i}">✕</button></div>`;
+  }).join('');
+}
+function hcRenderOrders(){ $('#hcBev').innerHTML=orderRows(hcBev,'bev'); $('#hcCon').innerHTML=orderRows(hcCon,'con'); }
+function hcRenderInv(){ $('#hcInv').classList.toggle('on',hcInvDone); $('#hcInv').querySelector('.checkbox').classList.toggle('on',hcInvDone); }
+function hcRenderTasks(){
+  const L=$('#hcTasks');
+  L.innerHTML=hcTasks.map((t,i)=>`<div class="checkrow ${t.done?'on':''}">`+
+    `<button class="checkbox ${t.done?'on':''}" data-act="taskdone" data-i="${i}">✓</button>`+
+    `<span class="ct">${esc(t.text)}</span>`+
+    `<button class="x" data-act="rmtask" data-i="${i}">✕</button></div>`).join('');
+}
+function hcRenderNotes(){
+  const L=$('#hcNotesTags');
+  L.innerHTML=hcNotes.map((n,i)=>`<span class="tag">${esc(n)}<button data-i="${i}">✕</button></span>`).join('');
+  L.querySelectorAll('button').forEach(b=>b.onclick=()=>{hcNotes.splice(+b.dataset.i,1);hcRenderNotes();});
+}
+function hcPayload(){
+  const clean=arr=>arr.filter(r=>r.item).map(r=>({item:r.item, qty:r.qty!==''?Number(r.qty):null, unit:r.unit||null}));
+  return {report:reportHeader('hall_close'),
+    orders:{beverage:clean(hcBev), consumables:clean(hcCon)},
+    inventory_updated:hcInvDone,
+    opening_tasks:hcTasks.filter(t=>t.text.trim()).map(t=>({task:t.text.trim(),done:t.done})),
+    handover_notes:hcNotes};
+}
+
+/* =====================================================================
+   공용 헤더 / 제출
+===================================================================== */
+function reportHeader(type){
+  return {branch:$('#branch').value, report_date:$('#rdate').value, shift_type:type,
+    author:$('#author').value||null};
+}
+function buildPayload(){
+  if(activeTemplate==='kitchen_open') return kitchenPayload();
+  if(activeTemplate==='hall_open')    return hoPayload();
+  if(activeTemplate==='hall_close')   return hcPayload();
+  return {report:reportHeader(activeTemplate)};
+}
+async function submit(){
+  const payload=buildPayload();
+  const res=await SUPABASE.save(payload);
+  const box=$('#saveBox');
+  if(res.ok){ box.className='savebox ok'; box.innerHTML=`<b>저장됨</b> · ${SUPABASE.table} 테이블`; }
+  else { box.className='savebox warn'; box.innerHTML=`<b>모의 저장</b> · 실제 Supabase 미연결 — 아래 형태로 <b>${esc(SUPABASE.table)}</b> 에 insert 됩니다`; }
+  $('#json').textContent=JSON.stringify(res.row,null,2);
   $('#ovSub').classList.add('show');
 }
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
 
-/* ---------- 부팅 ---------- */
-var currentType='';
+/* =====================================================================
+   라우터 / 부팅
+===================================================================== */
+function showTemplate(type){
+  document.querySelectorAll('.tpl').forEach(t=>t.classList.add('hidden'));
+  const map={kitchen_open:'#tpl-kitchen-open',kitchen_close:'#tpl-kitchen-close',hall_open:'#tpl-hall-open',hall_close:'#tpl-hall-close'};
+  $(map[type]).classList.remove('hidden');
+  const sb=$('#submit');
+  if(type==='kitchen_open'){ const b=$('#branch').value; loadBranch(b); }
+  else if(type==='hall_open'){ hoInit(); sb.disabled=false; sb.textContent='보고 제출'; }
+  else if(type==='hall_close'){ hcInit(); sb.disabled=false; sb.textContent='보고 제출'; }
+  else { sb.disabled=true; sb.textContent='준비 중'; }
+}
+
 document.addEventListener('DOMContentLoaded', function(){
-  /* 홈: 날짜 기본값 */
-  document.getElementById('homeDate').value=new Date().toISOString().slice(0,10);
+  $('#homeDate').value=new Date().toISOString().slice(0,10);
 
-  /* 홈: 보고 종류 카드 */
-  var selType='';
-  document.getElementById('typeGrid').querySelectorAll('.type-card').forEach(function(card){
-    card.addEventListener('click', function(){
-      document.getElementById('typeGrid').querySelectorAll('.type-card').forEach(function(c){c.classList.remove('sel');});
-      card.classList.add('sel');
-      selType=card.dataset.type;
-      document.getElementById('homeStart').disabled=false;
+  let selType='';
+  $('#typeGrid').querySelectorAll('.type-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      $('#typeGrid').querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+      card.classList.add('sel'); selType=card.dataset.type; $('#homeStart').disabled=false;
     });
   });
 
-  /* 홈: 보고 시작 */
-  document.getElementById('homeStart').addEventListener('click', function(){
+  $('#homeStart').addEventListener('click', ()=>{
     if(!selType)return;
-    currentType=selType;
-    var branch=document.getElementById('homeBranch').value;
-    var date=document.getElementById('homeDate').value;
-    var author=document.getElementById('homeAuthor').value;
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('form').classList.remove('hidden');
+    activeTemplate=selType;
+    $('#home').classList.add('hidden'); $('#form').classList.remove('hidden');
     document.querySelector('.bar').classList.add('visible');
-    document.getElementById('formTitle').textContent=selType+' 보고';
-    document.getElementById('typeLabel').textContent=selType;
-    var bs=$('#branch');
-    bs.innerHTML='';
-    Object.keys(BRANCHES).forEach(function(b){var o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
-    bs.value=branch;
-    $('#rdate').value=date;
-    $('#author').value=author;
-    loadBranch(branch);
+    $('#formTitle').textContent=TYPE_LABEL[selType]+' 보고';
+    $('#typeLabel').textContent=TYPE_LABEL[selType];
+    const bs=$('#branch'); bs.innerHTML='';
+    Object.keys(BRANCHES).forEach(b=>{const o=document.createElement('option');o.textContent=b;bs.appendChild(o);});
+    bs.value=$('#homeBranch').value;
+    $('#rdate').value=$('#homeDate').value;
+    $('#author').value=$('#homeAuthor').value;
+    showTemplate(selType);
+    window.scrollTo(0,0);
   });
 
-  /* 홈: 뒤로 */
-  document.getElementById('backBtn').addEventListener('click', function(){
-    document.getElementById('form').classList.add('hidden');
-    document.getElementById('home').classList.remove('hidden');
-    document.querySelector('.bar').classList.remove('visible');
+  $('#backBtn').addEventListener('click', ()=>{
+    $('#form').classList.add('hidden'); $('#home').classList.remove('hidden');
+    document.querySelector('.bar').classList.remove('visible'); activeTemplate=null;
   });
 
-  /* 폼 이벤트 */
-  $('#branch').onchange=()=>loadBranch($('#branch').value);
-  $('#rdate').addEventListener('change',renderAged);
+  $('#branch').onchange=()=>{ if(activeTemplate==='kitchen_open') loadBranch($('#branch').value); };
+  $('#rdate').addEventListener('change',()=>{ if(activeTemplate==='kitchen_open') renderAged(); });
+
+  /* 주방오픈 위임 이벤트 */
+  $('#list').addEventListener('click',e=>{
+    const t=e.target.closest('[data-act]'); if(!t)return;
+    const act=t.dataset.act, name=t.dataset.item;
+    if(act==='toggle'){ st[name]._menu=false; closeMenus(name); st[name]._open=!st[name]._open; refreshCard(name); }
+    else if(act==='menu'){ const open=st[name]._menu; closeMenus(); st[name]._menu=!open; menuOpen=st[name]._menu?name:null; refreshCard(name); }
+    else if(act==='setnone'){ st[name].status='none'; st[name]._menu=false; st[name]._open=false; menuOpen=null; refreshCard(name); renderAged(); }
+    else if(act==='revert'){ st[name].status='pending'; st[name]._menu=false; st[name]._open=true; menuOpen=null; refreshCard(name); renderAged(); }
+    else if(act==='done'){ st[name].status='good'; st[name]._open=false; refreshCard(name); }
+    else if(act==='cond'){ st[name].lots[+t.dataset.i].cond=+t.dataset.c; refreshCard(name); }
+    else if(act==='attr'){ st[name].lots[+t.dataset.i].attrVals[t.dataset.a]=t.dataset.v; refreshCard(name); }
+    else if(act==='cta'){ const a=t.dataset.x,arr=st[name].lots[+t.dataset.i].notes,k=arr.indexOf(a); k<0?arr.push(a):arr.splice(k,1); refreshCard(name); }
+    else if(act==='rmnote'){ st[name].lots[+t.dataset.i].notes.splice(+t.dataset.j,1); refreshCard(name); }
+    else if(act==='delitem'){ roster=roster.filter(n=>n!==name); delete st[name]; added.delete(name); render(); renderAged(); }
+    else if(act==='addlot'){ st[name].lots.push(newLot(name)); refreshCard(name); }
+    else if(act==='rmlot'){ st[name].lots.splice(+t.dataset.i,1); refreshCard(name); renderAged(); }
+  });
+  $('#list').addEventListener('input',e=>{
+    const t=e.target.closest('[data-act]'); if(!t)return;
+    const name=t.dataset.item, i=+t.dataset.i;
+    if(t.dataset.act==='condinput'){
+      let v=parseInt(t.value,10); if(isNaN(v))return; if(v>100)v=100; if(v<0)v=0;
+      st[name].lots[i].cond=v;
+      const lotEl=t.closest('.lot');
+      lotEl.querySelectorAll('.cond button').forEach(b=>b.classList.remove('on'));
+      lotEl.querySelector('.direct').classList.toggle('on',![100,95,90].includes(v));
+    } else if(t.dataset.act==='lot'){
+      st[name].lots[i][t.dataset.f]=t.value;
+      if(t.dataset.f==='prodDate') renderAged();
+    }
+  });
+  $('#list').addEventListener('keydown',e=>{
+    const t=e.target.closest('[data-act=noteinput]'); if(!t)return;
+    if(e.key==='Enter'){ e.preventDefault();
+      const name=t.dataset.item, i=+t.dataset.i, v=t.value.trim();
+      if(v && !st[name].lots[i].notes.includes(v)) st[name].lots[i].notes.push(v);
+      t.value=''; refreshCard(name);
+      const card=document.querySelector('[data-card="'+CSS.escape(name)+'"]');
+      const lot=card&&card.querySelectorAll('.lot')[i]; const ni=lot&&lot.querySelector('.noteinput'); if(ni)ni.focus();
+    }
+  });
   $('#addItem').onclick=openAdd;
-  $('#closeAdd').onclick=()=>$('#ovAdd').classList.remove('show');
-  $('#closeSub').onclick=()=>$('#ovSub').classList.remove('show');
   $('#genInput').addEventListener('keydown',e=>{
     if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v&&!gen.includes(v))gen.push(v);e.target.value='';renderGen();e.target.focus();}
   });
+
+  /* 홀오픈 위임 이벤트 */
+  $('#hoPeople').addEventListener('click',e=>{
+    const t=e.target.closest('[data-act]'); if(!t)return; const i=+t.dataset.i;
+    if(t.dataset.act==='role'){ const r=t.dataset.r, roles=hoPeople[i].roles, k=roles.indexOf(r); k<0?roles.push(r):roles.splice(k,1); hoRenderPeople(); }
+    else if(t.dataset.act==='rmperson'){ hoPeople.splice(i,1); hoRenderPeople(); }
+  });
+  $('#hoPeople').addEventListener('input',e=>{
+    const t=e.target.closest('[data-f=name]'); if(!t)return; hoPeople[+t.dataset.i].name=t.value;
+  });
+  $('#hoAddPerson').onclick=()=>{ hoPeople.push({name:'',roles:[]}); hoRenderPeople(); };
+  document.querySelectorAll('#tpl-hall-open .ox').forEach(box=>{
+    box.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+      const key=box.dataset.key; hoChecks[key]=(hoChecks[key]===b.dataset.v)?null:b.dataset.v; hoRenderChecks(); });
+  });
+  $('#hoNotesInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v&&!hoNotes.includes(v))hoNotes.push(v);e.target.value='';hoRenderNotes();e.target.focus();}
+  });
+
+  /* 홀마감 위임 이벤트 */
+  $('#tpl-hall-close').addEventListener('click',e=>{
+    const t=e.target.closest('[data-act],[data-grp]'); if(!t)return;
+    if(t.classList.contains('addinv')){ const grp=t.dataset.grp; (grp==='bev'?hcBev:hcCon).push({item:'',qty:''}); hcRenderOrders(); return; }
+    const act=t.dataset.act;
+    if(act==='rmorder'){ const grp=t.dataset.grp; (grp==='bev'?hcBev:hcCon).splice(+t.dataset.i,1); hcRenderOrders(); }
+    else if(act==='taskdone'){ hcTasks[+t.dataset.i].done=!hcTasks[+t.dataset.i].done; hcRenderTasks(); }
+    else if(act==='rmtask'){ hcTasks.splice(+t.dataset.i,1); hcRenderTasks(); }
+    else if(e.target.closest('#hcInv')){ hcInvDone=!hcInvDone; hcRenderInv(); }
+  });
+  $('#tpl-hall-close').addEventListener('input',e=>{
+    const t=e.target.closest('input[data-grp][data-f]'); if(!t)return;
+    const arr=t.dataset.grp==='bev'?hcBev:hcCon; arr[+t.dataset.i][t.dataset.f]=t.value;
+  });
+  $('#tpl-hall-close').addEventListener('change',e=>{
+    const t=e.target.closest('select[data-f=item]'); if(!t)return;
+    const arr=t.dataset.grp==='bev'?hcBev:hcCon, i=+t.dataset.i;
+    arr[i].item=t.value;
+    arr[i].unit=t.value?itemUnit(t.value):'';   // 품목 선택 시 단위 자동 채움
+    hcRenderOrders();
+  });
+  $('#hcTaskInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v){hcTasks.push({text:v,done:false});}e.target.value='';hcRenderTasks();e.target.focus();}
+  });
+  $('#hcNotesInput').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(v&&!hcNotes.includes(v))hcNotes.push(v);e.target.value='';hcRenderNotes();e.target.focus();}
+  });
+
+  /* 제출 / 모달 */
   $('#submit').onclick=submit;
+  $('#closeAdd').onclick=()=>$('#ovAdd').classList.remove('show');
+  $('#closeSub').onclick=()=>$('#ovSub').classList.remove('show');
   $('#copyJson').onclick=()=>{navigator.clipboard?.writeText($('#json').textContent).then(()=>toast('복사됨'),()=>toast('복사 실패'));};
   [$('#ovAdd'),$('#ovSub')].forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('show');}));
   document.addEventListener('click',e=>{
